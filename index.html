@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" type="image/png" href="/assets/logo.png" />
   <title>THE LOST MC — San Andreas Chapter</title>
 
   <!-- Tailwind CSS -->
@@ -1271,9 +1272,8 @@
       const hero = document.getElementById('hero-logo-wrapper');
       const modalPrev = document.getElementById('logo-modal-preview');
 
-      const html = customLogoUrl
-        ? `<img src="${escapeHtml(customLogoUrl)}" alt="The Lost MC" class="w-full h-full object-contain" />`
-        : DEFAULT_LOGO_SVG;
+      // Tüm logolar yeni resmi kullanır (eski özel logolar yok sayılır)
+      const html = `<img src="/assets/logo.png" alt="The Lost MC" class="w-full h-full object-contain" />`;
 
       if (mini) mini.innerHTML = html;
       if (hero) hero.innerHTML = html;
