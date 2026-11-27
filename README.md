@@ -1,0 +1,2 @@
+# lostmc-website
+lostmc website
