@@ -1,0 +1,2900 @@
+<!DOCTYPE html>
+<html lang="tr" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>THE LOST MC — San Andreas Chapter</title>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            asphalt: '#0a0a0c',
+            charcoal: '#121216',
+            carddark: '#16161c',
+            cardhover: '#1e1e26',
+            crimson: '#b91c1c',
+            blood: '#7f1d1d',
+            steel: '#26262e',
+            silver: '#9ca3af'
+          },
+          fontFamily: {
+            heading: ['Oswald', 'Bebas Neue', 'sans-serif'],
+            sans: ['Inter', 'sans-serif'],
+            typewriter: ['Special Elite', 'monospace']
+          }
+        }
+      }
+    };
+  </script>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&family=Oswald:wght@500;600;700&family=Special+Elite&display=swap" rel="stylesheet" />
+
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+
+  <!-- Netlify Identity Widget -->
+
+  <style>
+    body {
+      background-color: #0a0a0c;
+      color: #e5e7eb;
+      font-family: 'Inter', sans-serif;
+      overflow-x: hidden;
+      background-image:
+        radial-gradient(circle at 15% 10%, rgba(185, 28, 28, 0.07) 0%, transparent 42%),
+        linear-gradient(180deg, #0a0a0c 0%, #101015 55%, #09090b 100%);
+      background-attachment: fixed;
+    }
+
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0c0c0f;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #2e2e3a;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #dc2626;
+    }
+
+    #ash-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+      opacity: 0.45;
+    }
+
+    .mc-card {
+      background-color: #16161c;
+      border: 1px solid #26262e;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.55);
+    }
+
+    .mc-card-header {
+      background: linear-gradient(90deg, rgba(185, 28, 28, 0.18) 0%, rgba(22, 22, 28, 0.96) 55%);
+      border-bottom: 1px solid #26262e;
+    }
+
+    .polaroid-frame {
+      background: #ece7dc;
+      padding: 10px 10px 16px 10px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.75);
+      position: relative;
+      transition: transform 0.25s ease;
+    }
+    .polaroid-frame:hover {
+      transform: translateY(-4px) rotate(0deg) !important;
+    }
+    .tape-strip {
+      position: absolute;
+      top: -10px;
+      left: 50%;
+      transform: translateX(-50%) rotate(-2deg);
+      width: 60px;
+      height: 18px;
+      background: rgba(196, 152, 124, 0.65);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.35);
+    }
+
+    .nav-tab-active {
+      color: #ffffff;
+      border-bottom: 2px solid #b91c1c;
+      background: rgba(185, 28, 28, 0.12);
+    }
+
+    @keyframes fadeInScale {
+      from { opacity: 0; transform: scale(0.96); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    .animate-modal {
+      animation: fadeInScale 0.2s ease-out forwards;
+    }
+
+    @keyframes slideInRight {
+      from { opacity: 0; transform: translateX(30px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+    .animate-toast {
+      animation: slideInRight 0.25s ease-out forwards;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col relative selection:bg-red-800 selection:text-white">
+
+  <!-- Arka Plan Parçacıkları -->
+  <canvas id="ash-canvas"></canvas>
+
+  <!-- Toast Bildirim Alanı -->
+  <div id="toast-container" class="fixed top-20 right-4 z-[90] flex flex-col gap-2 max-w-sm w-full pointer-events-none"></div>
+
+  <!-- ÜST NAVİGASYON BAR -->
+  <header class="sticky top-0 z-50 bg-[#0d0d11]/95 backdrop-blur-md border-b border-steel shadow-xl">
+    <div class="max-w-7xl mx-auto px-4 py-2.5 flex items-center justify-between gap-4">
+      <!-- Sol: Başlık -->
+      <div class="flex items-center gap-3 shrink-0 cursor-pointer" onclick="switchTab('forum')">
+        <div id="header-mini-logo" class="w-9 h-9 rounded bg-[#14141a] border border-steel p-1 flex items-center justify-center overflow-hidden"></div>
+        <span class="font-heading text-xl font-bold tracking-wider text-white">
+          THE LOST <span class="text-red-700">MC</span>
+        </span>
+      </div>
+
+      <!-- Orta: Menü Sekmeleri -->
+      <nav class="hidden lg:flex items-center gap-1">
+        <button onclick="switchTab('forum')" data-tab="forum" class="nav-btn px-3.5 py-2 rounded-t font-heading text-sm tracking-wider uppercase text-zinc-300 hover:text-white hover:bg-white/5 transition flex items-center gap-2">
+          <i class="fa-solid fa-fire-flame-curved text-red-600 text-xs"></i> Ana Sayfa &amp; Forum
+        </button>
+        <button onclick="switchTab('gallery')" data-tab="gallery" class="nav-btn px-3.5 py-2 rounded-t font-heading text-sm tracking-wider uppercase text-zinc-300 hover:text-white hover:bg-white/5 transition flex items-center gap-2">
+          <i class="fa-solid fa-images text-zinc-400 text-xs"></i> Medya / Galeri
+        </button>
+        <button onclick="switchTab('members')" data-tab="members" class="nav-btn px-3.5 py-2 rounded-t font-heading text-sm tracking-wider uppercase text-zinc-300 hover:text-white hover:bg-white/5 transition flex items-center gap-2">
+          <i class="fa-solid fa-users text-zinc-400 text-xs"></i> Üyeler &amp; Rütbeler
+        </button>
+        <button onclick="switchTab('tickets')" data-tab="tickets" class="nav-btn px-3.5 py-2 rounded-t font-heading text-sm tracking-wider uppercase text-zinc-300 hover:text-white hover:bg-white/5 transition flex items-center gap-2">
+          <i class="fa-solid fa-shield-halved text-zinc-400 text-xs"></i> Şikayet / Ticket
+          <span id="ticket-count-badge" class="hidden text-[10px] px-1.5 py-0.2 rounded-full bg-red-700 text-white font-sans font-bold">0</span>
+        </button>
+        <button onclick="switchTab('chat')" data-tab="chat" class="nav-btn px-3.5 py-2 rounded-t font-heading text-sm tracking-wider uppercase text-zinc-300 hover:text-white hover:bg-white/5 transition flex items-center gap-2">
+          <i class="fa-solid fa-comments text-zinc-400 text-xs"></i> Sohbet
+        </button>
+      </nav>
+
+      <!-- Sağ: Giriş / Profil -->
+      <div class="flex items-center gap-2">
+        <div id="header-auth-area" class="flex items-center gap-2"></div>
+        <button onclick="toggleMobileMenu()" class="lg:hidden p-2 rounded bg-carddark border border-steel text-zinc-300 hover:text-white">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobil Menü -->
+    <div id="mobile-menu" class="hidden lg:hidden bg-[#101015] border-t border-steel px-4 py-3 space-y-1">
+      <button onclick="switchTab('forum'); toggleMobileMenu()" class="w-full text-left px-3 py-2 rounded font-heading tracking-wider uppercase text-sm text-zinc-200 hover:bg-red-950/40 flex items-center gap-2.5">
+        <i class="fa-solid fa-fire-flame-curved text-red-600 w-4"></i> Ana Sayfa &amp; Forum
+      </button>
+      <button onclick="switchTab('gallery'); toggleMobileMenu()" class="w-full text-left px-3 py-2 rounded font-heading tracking-wider uppercase text-sm text-zinc-200 hover:bg-red-950/40 flex items-center gap-2.5">
+        <i class="fa-solid fa-images text-zinc-400 w-4"></i> Medya / Galeri
+      </button>
+      <button onclick="switchTab('members'); toggleMobileMenu()" class="w-full text-left px-3 py-2 rounded font-heading tracking-wider uppercase text-sm text-zinc-200 hover:bg-red-950/40 flex items-center gap-2.5">
+        <i class="fa-solid fa-users text-zinc-400 w-4"></i> Üyeler &amp; Rütbeler
+      </button>
+      <button onclick="switchTab('tickets'); toggleMobileMenu()" class="w-full text-left px-3 py-2 rounded font-heading tracking-wider uppercase text-sm text-zinc-200 hover:bg-red-950/40 flex items-center gap-2.5">
+        <i class="fa-solid fa-shield-halved text-zinc-400 w-4"></i> Şikayet / Ticket
+      </button>
+      <button onclick="switchTab('chat'); toggleMobileMenu()" class="w-full text-left px-3 py-2 rounded font-heading tracking-wider uppercase text-sm text-zinc-200 hover:bg-red-950/40 flex items-center gap-2.5">
+        <i class="fa-solid fa-comments text-zinc-400 w-4"></i> Sohbet
+      </button>
+    </div>
+  </header>
+
+  <!-- ANA İÇERİK ALANI -->
+  <div id="local-mode-banner" class="hidden relative z-10 bg-amber-950/90 border-b border-amber-700 text-amber-200 text-xs px-4 py-2 text-center">
+    <i class="fa-solid fa-triangle-exclamation mr-1"></i>
+    <b>Yerel mod:</b> Sunucuya ulaşılamıyor, veriler yalnızca bu tarayıcıda saklanıyor. Siteyi Netlify'a deploy edin (README).
+    <span id="local-mode-reason" class="opacity-60 ml-1"></span>
+  </div>
+
+  <main class="relative z-10 flex-1 max-w-7xl w-full mx-auto px-3 sm:px-4 py-6">
+
+    <!-- ==================== SEKME 1: ANA SAYFA & FORUM ==================== -->
+    <section id="tab-forum" class="tab-section space-y-6">
+      <!-- SADE İKİ SÜTUNLU HERO: SOL LOGO + SAĞ SADECE LOST MC LORE -->
+      <div class="mc-card rounded-md p-6 sm:p-8">
+        <div class="flex flex-col md:flex-row items-center gap-7 sm:gap-10">
+          <!-- Sol: The Lost MC Logo -->
+          <div class="flex flex-col items-center gap-2.5 shrink-0">
+            <div id="hero-logo-wrapper" class="w-44 h-44 sm:w-52 sm:h-52 flex items-center justify-center rounded-md bg-[#0e0e13] border border-steel p-3 shadow-inner overflow-hidden"></div>
+            <button id="btn-change-logo" onclick="openLogoModal()" class="hidden text-[11px] px-3 py-1 rounded bg-zinc-900 hover:bg-zinc-800 text-amber-400 border border-amber-700/50 transition flex items-center gap-1.5">
+              <i class="fa-solid fa-image"></i> Logo Değiştir
+            </button>
+          </div>
+
+          <!-- Sağ: Sadece The Lost MC Lore -->
+          <div class="flex-1 text-sm sm:text-base text-zinc-200 leading-relaxed sm:leading-8 tracking-wide text-center md:text-left">
+            <p class="mb-3">
+              The Lost Motor Kulübü, ilk olarak 2008 yılında Alderney eyaletinde kurulmuş, ardından 2013 yılında ulusal düzeyde faaliyet göstermeye başlamış bir yasa dışı motosiklet kulübüdür.
+            </p>
+            <p class="mb-3">
+              2013 yılı itibariyle Los Santos ve Blaine County, San Andreas'ta da aktif olarak bulunmaktadır. Motosiklet kulüpleri arasında "1%er" olarak da bilinmektedir.
+            </p>
+            <p>
+              Lost, 1964 yılında Kuzey Vietnam, Hanoi'de bir araya gelen sekiz ABD'li deniz piyadesi tarafından kurulmuştur. Savaş bittikten sonra uyuşturucu ve şiddete duydukları açlık nedeniyle bu kulübü kurmuşlardır ve savaşta kaybettikleri tüm arkadaşlarının onuruna 'Lost' adını vermişlerdir.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Forum Araç Çubuğu -->
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <div class="flex items-center gap-2">
+          <select id="forum-category-filter" onchange="renderForumPosts()" class="bg-[#16161c] border border-steel rounded px-3 py-2 text-xs text-zinc-200 focus:outline-none focus:border-red-700">
+            <option value="ALL">Tüm Kategoriler</option>
+            <option value="Duyuru">Duyuru</option>
+            <option value="Etkinlik">Etkinlik</option>
+            <option value="Medya & GIF">Medya &amp; GIF</option>
+            <option value="Genel">Genel</option>
+          </select>
+        </div>
+        <button onclick="openNewPostModal()" class="px-4 py-2 rounded bg-red-700 hover:bg-red-600 text-white font-heading tracking-wider uppercase text-sm shadow transition flex items-center gap-2">
+          <i class="fa-solid fa-plus"></i> Yeni Konu Aç
+        </button>
+      </div>
+
+      <!-- Forum Gönderileri Listesi -->
+      <div id="forum-posts-container" class="space-y-5"></div>
+    </section>
+
+    <!-- ==================== SEKME 2: MEDYA / GALERİ ==================== -->
+    <section id="tab-gallery" class="tab-section hidden space-y-5">
+      <div class="flex items-center justify-between gap-3">
+        <h2 class="font-heading text-2xl font-bold text-white tracking-wider uppercase flex items-center gap-2">
+          <i class="fa-solid fa-camera-retro text-red-700"></i> MEDYA / GALERİ
+        </h2>
+        <button onclick="openGalleryModal()" class="px-4 py-2 rounded bg-red-700 hover:bg-red-600 text-white font-heading tracking-wider uppercase text-sm transition flex items-center gap-2">
+          <i class="fa-solid fa-plus"></i> Fotoğraf / GIF Ekle
+        </button>
+      </div>
+
+      <div id="gallery-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+    </section>
+
+    <!-- ==================== SEKME 3: ÜYELER & RÜTBELER ==================== -->
+    <section id="tab-members" class="tab-section hidden space-y-5">
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <h2 class="font-heading text-2xl font-bold text-white tracking-wider uppercase flex items-center gap-2">
+          <i class="fa-solid fa-skull text-red-700"></i> ÜYELER &amp; RÜTBELER
+        </h2>
+        <div class="flex flex-wrap items-center gap-2">
+          <button id="btn-manage-ranks" onclick="openRanksModal()" class="hidden px-3 py-1.5 rounded bg-zinc-900 hover:bg-zinc-800 border border-amber-700/60 text-amber-400 text-xs font-semibold transition flex items-center gap-1.5">
+            <i class="fa-solid fa-sitemap"></i> Rütbe Ekle / Kaldır
+          </button>
+          <button onclick="setMembersView('cards')" id="btn-view-cards" class="px-3 py-1.5 rounded bg-red-700 text-white text-xs font-semibold transition">
+            <i class="fa-solid fa-id-card mr-1"></i> Kart
+          </button>
+          <button onclick="setMembersView('polaroid')" id="btn-view-polaroid" class="px-3 py-1.5 rounded bg-carddark border border-steel text-zinc-300 hover:text-white text-xs font-semibold transition">
+            <i class="fa-solid fa-camera-retro mr-1"></i> Polaroid
+          </button>
+        </div>
+      </div>
+
+      <div id="members-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"></div>
+    </section>
+
+    <!-- ==================== SEKME 4: ŞİKAYET / TİCKET ==================== -->
+    <section id="tab-tickets" class="tab-section hidden space-y-5">
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <h2 class="font-heading text-2xl font-bold text-white tracking-wider uppercase flex items-center gap-2">
+          <i class="fa-solid fa-shield-halved text-red-700"></i> ŞİKAYET / TİCKET
+        </h2>
+        <button onclick="openNewTicketModal()" class="px-4 py-2 rounded bg-red-700 hover:bg-red-600 text-white font-heading tracking-wider uppercase text-sm transition flex items-center gap-2">
+          <i class="fa-solid fa-plus"></i> Yeni Ticket
+        </button>
+      </div>
+
+      <div id="tickets-content-area"></div>
+    </section>
+
+    <!-- ==================== SEKME 5: SOHBET ==================== -->
+    <section id="tab-chat" class="tab-section hidden">
+      <div class="mc-card rounded-md overflow-hidden flex flex-col h-[75vh] min-h-[500px]">
+        <div class="mc-card-header px-5 py-3 flex items-center justify-between">
+          <h2 class="font-heading text-lg font-bold text-white tracking-wider uppercase flex items-center gap-2">
+            <i class="fa-solid fa-comments text-red-600"></i> KULÜP SOHBETİ
+          </h2>
+          <span class="text-[11px] text-emerald-400 flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Canlı
+          </span>
+        </div>
+
+        <div id="full-chat-messages" class="flex-1 overflow-y-auto p-4 sm:p-5 space-y-3 bg-[#101015]"></div>
+        <div id="full-chat-input-area" class="p-3.5 bg-[#14141a] border-t border-steel"></div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- SAĞ ALT MİNİ SOHBET PENCERESİ -->
+  <div id="mini-chat-wrapper" class="fixed bottom-4 right-4 z-50 flex flex-col items-end">
+    <div id="mini-chat-box" class="hidden mb-2 w-[320px] sm:w-[360px] h-[420px] mc-card rounded-md overflow-hidden flex flex-col shadow-2xl border border-red-900/60 animate-modal">
+      <div class="mc-card-header px-3.5 py-2.5 flex items-center justify-between">
+        <span class="font-heading text-sm tracking-wider uppercase text-white flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-400"></span> Sohbet
+        </span>
+        <div class="flex items-center gap-2">
+          <button onclick="switchTab('chat'); toggleMiniChat(false)" class="text-zinc-400 hover:text-white text-xs" title="Büyüt">
+            <i class="fa-solid fa-up-right-and-down-left-from-center"></i>
+          </button>
+          <button onclick="toggleMiniChat(false)" class="text-zinc-400 hover:text-red-400 text-sm">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+      </div>
+      <div id="mini-chat-messages" class="flex-1 overflow-y-auto p-3 space-y-2.5 bg-[#101015] text-xs"></div>
+      <div id="mini-chat-input-area" class="p-2.5 bg-[#14141a] border-t border-steel"></div>
+    </div>
+
+    <button onclick="toggleMiniChat()" class="px-4 py-3 rounded-full bg-red-800 hover:bg-red-700 text-white shadow-xl border border-red-600/40 flex items-center gap-2 font-heading tracking-wider uppercase text-sm transition">
+      <i class="fa-solid fa-comments"></i>
+      <span class="hidden sm:inline">Sohbet</span>
+      <span id="mini-chat-unread" class="hidden w-5 h-5 rounded-full bg-amber-400 text-black font-sans font-bold text-[10px] flex items-center justify-center">0</span>
+    </button>
+  </div>
+
+  <!-- ==================== MODALLAR ==================== -->
+
+  <!-- 1. GİRİŞ YAP / KAYIT OL MODALI -->
+  <div id="auth-modal" class="hidden fixed inset-0 z-[70] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="mc-card rounded-md w-full max-w-md overflow-hidden animate-modal">
+      <div class="mc-card-header px-5 py-3.5 flex items-center justify-between">
+        <h3 id="auth-modal-title" class="font-heading text-lg font-bold text-white tracking-wider uppercase">GİRİŞ YAP</h3>
+        <button onclick="closeModal('auth-modal')" class="text-zinc-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+      </div>
+      <div class="p-5 space-y-4">
+        <div class="grid grid-cols-2 gap-2 bg-[#0e0e13] p-1 rounded border border-steel">
+          <button id="auth-tab-login" onclick="setAuthMode('login')" class="py-2 rounded text-xs font-bold uppercase tracking-wider bg-red-700 text-white transition">Giriş Yap</button>
+          <button id="auth-tab-register" onclick="setAuthMode('register')" class="py-2 rounded text-xs font-bold uppercase tracking-wider text-zinc-400 hover:text-white transition">Kayıt Ol</button>
+        </div>
+
+        <form id="auth-form" onsubmit="handleAuthSubmit(event)" class="space-y-3">
+          <div id="register-only-fields" class="hidden space-y-3">
+            <div>
+              <label class="block text-xs font-semibold text-zinc-300 mb-1">Karakter Adı</label>
+              <input id="auth-rpname" type="text" placeholder="Jax Teller" class="w-full px-3 py-2 rounded bg-[#0e0e13] border border-steel text-sm text-white focus:outline-none focus:border-red-700" />
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-zinc-300 mb-1">Avatar (İsteğe Bağlı)</label>
+              <div class="flex gap-2">
+                <input id="auth-avatar-url" type="url" placeholder="https://..." class="flex-1 px-3 py-2 rounded bg-[#0e0e13] border border-steel text-xs text-white focus:outline-none focus:border-red-700" />
+                <label class="px-3 py-2 rounded bg-zinc-800 hover:bg-zinc-700 border border-steel text-xs text-zinc-200 cursor-pointer flex items-center gap-1 shrink-0">
+                  <i class="fa-solid fa-upload"></i>
+                  <input id="auth-avatar-file" type="file" accept="image/*" class="hidden" onchange="handleAvatarFileSelect(event)" />
+                </label>
+              </div>
+              <div id="auth-avatar-preview" class="hidden mt-2 flex items-center gap-2 text-xs text-emerald-400">
+                <img id="auth-avatar-preview-img" src="" class="w-8 h-8 rounded object-cover border border-steel" />
+                <span>Hazır</span>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-zinc-300 mb-1">E-posta</label>
+            <input id="auth-email" type="email" required placeholder="uye@lostmc.rp" class="w-full px-3 py-2 rounded bg-[#0e0e13] border border-steel text-sm text-white focus:outline-none focus:border-red-700" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-zinc-300 mb-1">Şifre</label>
+            <input id="auth-password" type="password" required minlength="4" placeholder="••••••••" class="w-full px-3 py-2 rounded bg-[#0e0e13] border border-steel text-sm text-white focus:outline-none focus:border-red-700" />
+          </div>
+
+          <button type="submit" id="auth-submit-btn" class="w-full py-2.5 rounded bg-red-700 hover:bg-red-600 text-white font-heading tracking-wider uppercase text-sm font-bold transition">
+            Giriş Yap
+          </button>
+        </form>
+
+        <div class="pt-3 border-t border-steel space-y-2">
+          <button id="btn-netlify-identity" type="button" onclick="openNetlifyIdentity()" class="hidden w-full py-2 px-3 rounded bg-emerald-950/70 hover:bg-emerald-900/70 border border-emerald-700/60 text-emerald-300 text-xs font-semibold transition flex items-center justify-center gap-1.5">
+            <i class="fa-solid fa-globe"></i> Netlify Identity ile Giriş / Kayıt
+          </button>
+          <div id="demo-login-box" class="hidden flex items-center justify-between gap-2">
+            <button type="button" onclick="loginAsDemoPresident()" class="flex-1 py-2 px-3 rounded bg-zinc-900 hover:bg-zinc-800 border border-amber-700/50 text-amber-400 text-xs font-semibold transition flex items-center justify-center gap-1.5">
+              <i class="fa-solid fa-crown"></i> Demo Başkan Girişi
+            </button>
+            <button type="button" onclick="loginAsDemoProspect()" class="py-2 px-3 rounded bg-zinc-900 hover:bg-zinc-800 border border-steel text-zinc-400 hover:text-zinc-200 text-xs transition">
+              Demo Prospect
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. YENİ FORUM KONUSU MODALI -->
+  <div id="new-post-modal" class="hidden fixed inset-0 z-[70] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="mc-card rounded-md w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden animate-modal">
+      <div class="mc-card-header px-5 py-3.5 flex items-center justify-between shrink-0">
+        <h3 class="font-heading text-lg font-bold text-white tracking-wider uppercase">YENİ KONU</h3>
+        <button onclick="closeModal('new-post-modal')" class="text-zinc-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+      </div>
+      <form onsubmit="handleCreatePost(event)" class="p-5 space-y-4 overflow-y-auto">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div class="sm:col-span-2">
+            <label class="block text-xs font-semibold text-zinc-300 mb-1">Başlık</label>
+            <input id="post-title" type="text" required class="w-full px-3 py-2 rounded bg-[#0e0e13] border border-steel text-sm text-white focus:outline-none focus:border-red-700" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-zinc-300 mb-1">Kategori</label>
+            <select id="post-category" class="w-full px-3 py-2 rounded bg-[#0e0e13] border border-steel text-sm text-white focus:outline-none focus:border-red-700">
+              <option value="Duyuru">Duyuru</option>
+              <option value="Etkinlik">Etkinlik</option>
+              <option value="Medya & GIF">Medya &amp; GIF</option>
+              <option value="Genel">Genel</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-zinc-300 mb-1">İçerik <span class="text-zinc-500 font-normal">(İsteğe bağlı: [MEDYA:1] yazarak görseli metin içine yerleştirebilirsiniz)</span></label>
+          <textarea id="post-content" rows="5" required class="w-full px-3 py-2 rounded bg-[#0e0e13] border border-steel text-sm text-white focus:outline-none focus:border-red-700 leading-relaxed"></textarea>
+        </div>
+
+        <div class="bg-[#101015] border border-steel rounded p-3 space-y-2.5">
+          <div class="text-xs font-bold uppercase tracking-wider text-zinc-300"><i class="fa-solid fa-photo-film text-red-600 mr-1.5"></i>Fotoğraf / GIF</div>
+          <div class="flex flex-col sm:flex-row gap-2">
+            <input id="post-media-url" type="url" placeholder="Fotoğraf veya GIF linki (https://...)" class="flex-1 px-3 py-2 rounded bg-[#16161c] border border-steel text-xs text-white focus:outline-none focus:border-red-700" />
+            <button type="button" onclick="addPostMediaFromUrl()" class="px-3 py-2 rounded bg-zinc-800 hover:bg-zinc-700 text-xs text-white font-semibold border border-steel shrink-0">Link Ekle</button>
+            <label class="px-3 py-2 rounded bg-red-900/50 hover:bg-red-800/70 text-xs text-red-200 font-semibold border border-red-800/60 cursor-pointer flex items-center justify-center gap-1.5 shrink-0">
+              <i class="fa-solid fa-upload"></i> Yükle
+              <input id="post-media-file" type="file" accept="image/*,.gif" class="hidden" onchange="addPostMediaFromFile(event)" />
+            </label>
+          </div>
+          <div id="post-media-list" class="grid grid-cols-2 sm:grid-cols-3 gap-2 empty:hidden"></div>
+        </div>
+
+        <div class="flex justify-end gap-2">
+          <button type="button" onclick="closeModal('new-post-modal')" class="px-4 py-2 rounded bg-zinc-800 hover:bg-zinc-700 text-xs text-zinc-300">İptal</button>
+          <button type="submit" class="px-5 py-2 rounded bg-red-700 hover:bg-red-600 text-white font-heading tracking-wider uppercase text-sm font-bold">Yayınla</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 3. GALERİ MEDYA EKLEME MODALI -->
+  <div id="gallery-modal" class="hidden fixed inset-0 z-[70] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="mc-card rounded-md w-full max-w-md overflow-hidden animate-modal">
+      <div class="mc-card-header px-5 py-3.5 flex items-center justify-between">
+        <h3 class="font-heading text-lg font-bold text-white tracking-wider uppercase">FOTOĞRAF / GIF EKLE</h3>
+        <button onclick="closeModal('gallery-modal')" class="text-zinc-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+      </div>
+      <form onsubmit="handleAddGalleryItem(event)" class="p-5 space-y-3.5">
+        <div>
+          <label class="block text-xs font-semibold text-zinc-300 mb-1">Görsel / GIF URL</label>
+          <input id="gallery-url" type="url" placeholder="https://..." class="w-full px-3 py-2 rounded bg-[#0e0e13] border border-steel text-xs text-white focus:outline-none focus:border-red-700" />
+        </div>
+        <div class="flex items-center gap-2">
+          <label class="flex-1 py-2.5 px-3 rounded bg-zinc-900 hover:bg-zinc-800 border border-steel text-xs text-zinc-200 cursor-pointer flex items-center justify-center gap-2 transition">
+            <i class="fa-solid fa-upload text-red-500"></i> Cihazdan Seç (JPG / PNG / GIF)
+            <input id="gallery-file" type="file" accept="image/*,.gif" class="hidden" onchange="handleGalleryFileSelect(event)" />
+          </label>
+        </div>
+        <div id="gallery-preview-box" class="hidden rounded overflow-hidden border border-steel bg-[#0e0e13]">
+          <img id="gallery-preview-img" src="" class="w-full max-h-48 object-contain" />
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-zinc-300 mb-1">Başlık (İsteğe Bağlı)</label>
+          <input id="gallery-caption" type="text" placeholder="Route 68" class="w-full px-3 py-2 rounded bg-[#0e0e13] border border-steel text-xs text-white focus:outline-none focus:border-red-700" />
+        </div>
+        <div class="flex justify-end gap-2 pt-1">
+          <button type="button" onclick="closeModal('gallery-modal')" class="px-4 py-2 rounded bg-zinc-800 hover:bg-zinc-700 text-xs text-zinc-300">İptal</button>
+          <button type="submit" class="px-5 py-2 rounded bg-red-700 hover:bg-red-600 text-white font-heading tracking-wider uppercase text-sm font-bold">Paylaş</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 4. YENİ ŞİKAYET / TİCKET MODALI -->
+  <div id="new-ticket-modal" class="hidden fixed inset-0 z-[70] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="mc-card rounded-md w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden animate-modal">
+      <div class="mc-card-header px-5 py-3.5 flex items-center justify-between shrink-0">
+        <h3 class="font-heading text-lg font-bold text-white tracking-wider uppercase">YENİ ŞİKAYET / TİCKET</h3>
+        <button onclick="closeModal('new-ticket-modal')" class="text-zinc-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+      </div>
+      <form onsubmit="handleCreateTicket(event)" class="p-5 space-y-4 overflow-y-auto">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div class="sm:col-span-2">
+            <label class="block text-xs font-semibold text-zinc-300 mb-1">Başlık</label>
+            <input id="ticket-title" type="text" required class="w-full px-3 py-2 rounded bg-[#0e0e13] border border-steel text-sm text-white focus:outline-none focus:border-red-700" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-zinc-300 mb-1">Kategori</label>
+            <select id="ticket-category" class="w-full px-3 py-2 rounded bg-[#0e0e13] border border-steel text-sm text-white focus:outline-none focus:border-red-700">
+              <option value="Üye Şikayeti">Üye Şikayeti</option>
+              <option value="Kural İhlali">Kural İhlali</option>
+              <option value="OOC/IC Sorun">OOC/IC Sorun</option>
+              <option value="Diğer">Diğer</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-zinc-300 mb-1">Açıklama</label>
+          <textarea id="ticket-desc" rows="4" required class="w-full px-3 py-2 rounded bg-[#0e0e13] border border-steel text-sm text-white focus:outline-none focus:border-red-700"></textarea>
+        </div>
+
+        <div class="bg-[#101015] border border-red-900/40 rounded p-3 space-y-2">
+          <label class="block text-xs font-bold uppercase tracking-wider text-zinc-200">Erişebilecek E-postalar</label>
+          <div class="flex gap-2">
+            <input id="ticket-email-input" type="text" placeholder="uye1@lostmc.rp, uye2@lostmc.rp" onkeydown="if(event.key==='Enter'){event.preventDefault(); addTicketEmailTag();}" class="flex-1 px-3 py-2 rounded bg-[#16161c] border border-steel text-xs text-white focus:outline-none focus:border-red-700" />
+            <button type="button" onclick="addTicketEmailTag()" class="px-3 py-2 rounded bg-zinc-800 hover:bg-zinc-700 text-xs text-white font-semibold border border-steel shrink-0">Ekle</button>
+          </div>
+          <div id="ticket-email-tags" class="flex flex-wrap gap-1.5"></div>
+        </div>
+
+        <div class="bg-[#101015] border border-steel rounded p-3 space-y-2">
+          <span class="block text-xs font-bold uppercase tracking-wider text-zinc-200">Kanıt Fotoğrafı / GIF</span>
+          <div class="flex flex-col sm:flex-row gap-2">
+            <input id="ticket-media-url" type="url" placeholder="https://..." class="flex-1 px-3 py-2 rounded bg-[#16161c] border border-steel text-xs text-white focus:outline-none focus:border-red-700" />
+            <button type="button" onclick="addTicketMediaFromUrl()" class="px-3 py-2 rounded bg-zinc-800 hover:bg-zinc-700 text-xs text-white font-semibold border border-steel shrink-0">Link Ekle</button>
+            <label class="px-3 py-2 rounded bg-red-900/50 hover:bg-red-800/70 text-xs text-red-200 font-semibold border border-red-800/60 cursor-pointer flex items-center justify-center gap-1.5 shrink-0">
+              <i class="fa-solid fa-upload"></i> Yükle
+              <input id="ticket-media-file" type="file" accept="image/*,.gif" class="hidden" onchange="addTicketMediaFromFile(event)" />
+            </label>
+          </div>
+          <div id="ticket-media-preview" class="flex flex-wrap gap-2 empty:hidden"></div>
+        </div>
+
+        <div class="flex justify-end gap-2">
+          <button type="button" onclick="closeModal('new-ticket-modal')" class="px-4 py-2 rounded bg-zinc-800 hover:bg-zinc-700 text-xs text-zinc-300">İptal</button>
+          <button type="submit" class="px-5 py-2 rounded bg-red-700 hover:bg-red-600 text-white font-heading tracking-wider uppercase text-sm font-bold">Oluştur</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 5. LOGO DEĞİŞTİR MODALI (Sadece President) -->
+  <div id="logo-modal" class="hidden fixed inset-0 z-[70] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="mc-card rounded-md w-full max-w-md overflow-hidden animate-modal">
+      <div class="mc-card-header px-5 py-3.5 flex items-center justify-between">
+        <h3 class="font-heading text-lg font-bold text-white tracking-wider uppercase">LOGO DEĞİŞTİR</h3>
+        <button onclick="closeModal('logo-modal')" class="text-zinc-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+      </div>
+      <div class="p-5 space-y-4">
+        <div class="flex justify-center">
+          <div id="logo-modal-preview" class="w-32 h-32 rounded-md bg-[#0e0e13] border border-steel flex items-center justify-center p-2 overflow-hidden"></div>
+        </div>
+        <div class="space-y-2.5">
+          <label class="w-full py-2.5 px-4 rounded bg-red-700 hover:bg-red-600 text-white text-xs font-bold uppercase tracking-wider cursor-pointer flex items-center justify-center gap-2 transition">
+            <i class="fa-solid fa-upload"></i> Bilgisayardan Yükle
+            <input type="file" accept="image/*" class="hidden" onchange="handleLogoFileUpload(event)" />
+          </label>
+          <div class="flex gap-2">
+            <input id="logo-url-input" type="url" placeholder="Logo URL (https://...)" class="flex-1 px-3 py-2 rounded bg-[#0e0e13] border border-steel text-xs text-white focus:outline-none focus:border-red-700" />
+            <button onclick="saveLogoFromUrl()" class="px-3 py-2 rounded bg-zinc-800 hover:bg-zinc-700 text-xs text-white font-semibold border border-steel">Uygula</button>
+          </div>
+          <button onclick="resetDefaultLogo()" class="w-full py-2 rounded bg-zinc-900 hover:bg-zinc-800 text-xs text-zinc-400 border border-steel transition">
+            Varsayılan Logoya Dön
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6. GÖRSEL BÜYÜTME (LIGHTBOX) -->
+  <div id="lightbox-modal" onclick="closeModal('lightbox-modal')" class="hidden fixed inset-0 z-[80] bg-black/90 backdrop-blur-sm flex items-center justify-center p-4 cursor-zoom-out">
+    <img id="lightbox-img" src="" alt="Önizleme" class="max-w-full max-h-[90vh] rounded border border-zinc-700 shadow-2xl" />
+  </div>
+
+  <!-- 7. FORUM KONUSU DÜZENLEME MODALI -->
+  <div id="edit-post-modal" class="hidden fixed inset-0 z-[70] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="mc-card rounded-md w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden animate-modal">
+      <div class="mc-card-header px-5 py-3.5 flex items-center justify-between shrink-0">
+        <h3 class="font-heading text-lg font-bold text-white tracking-wider uppercase">KONUYU DÜZENLE</h3>
+        <button onclick="closeModal('edit-post-modal')" class="text-zinc-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+      </div>
+      <form onsubmit="handleUpdatePost(event)" class="p-5 space-y-4 overflow-y-auto">
+        <input type="hidden" id="edit-post-id" />
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div class="sm:col-span-2">
+            <label class="block text-xs font-semibold text-zinc-300 mb-1">Başlık</label>
+            <input id="edit-post-title" type="text" required class="w-full px-3 py-2 rounded bg-[#0e0e13] border border-steel text-sm text-white focus:outline-none focus:border-red-700" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-zinc-300 mb-1">Kategori</label>
+            <select id="edit-post-category" class="w-full px-3 py-2 rounded bg-[#0e0e13] border border-steel text-sm text-white focus:outline-none focus:border-red-700">
+              <option value="Duyuru">Duyuru</option>
+              <option value="Etkinlik">Etkinlik</option>
+              <option value="Medya & GIF">Medya &amp; GIF</option>
+              <option value="Genel">Genel</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-zinc-300 mb-1">İçerik</label>
+          <textarea id="edit-post-content" rows="6" required class="w-full px-3 py-2 rounded bg-[#0e0e13] border border-steel text-sm text-white focus:outline-none focus:border-red-700 leading-relaxed"></textarea>
+        </div>
+        <div class="flex justify-end gap-2">
+          <button type="button" onclick="closeModal('edit-post-modal')" class="px-4 py-2 rounded bg-zinc-800 hover:bg-zinc-700 text-xs text-zinc-300">İptal</button>
+          <button type="submit" class="px-5 py-2 rounded bg-red-700 hover:bg-red-600 text-white font-heading tracking-wider uppercase text-sm font-bold">Kaydet</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 8. GALERİ ÖĞESİ DÜZENLEME MODALI -->
+  <div id="edit-gallery-modal" class="hidden fixed inset-0 z-[70] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="mc-card rounded-md w-full max-w-md overflow-hidden animate-modal">
+      <div class="mc-card-header px-5 py-3.5 flex items-center justify-between">
+        <h3 class="font-heading text-lg font-bold text-white tracking-wider uppercase">GALERİ GÖRSELİNİ DÜZENLE</h3>
+        <button onclick="closeModal('edit-gallery-modal')" class="text-zinc-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+      </div>
+      <form onsubmit="handleUpdateGalleryItem(event)" class="p-5 space-y-3.5">
+        <input type="hidden" id="edit-gallery-id" />
+        <div>
+          <label class="block text-xs font-semibold text-zinc-300 mb-1">Görsel / GIF URL</label>
+          <input id="edit-gallery-url" type="url" required class="w-full px-3 py-2 rounded bg-[#0e0e13] border border-steel text-xs text-white focus:outline-none focus:border-red-700" />
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-zinc-300 mb-1">Başlık</label>
+          <input id="edit-gallery-caption" type="text" class="w-full px-3 py-2 rounded bg-[#0e0e13] border border-steel text-xs text-white focus:outline-none focus:border-red-700" />
+        </div>
+        <div class="flex justify-end gap-2 pt-1">
+          <button type="button" onclick="closeModal('edit-gallery-modal')" class="px-4 py-2 rounded bg-zinc-800 hover:bg-zinc-700 text-xs text-zinc-300">İptal</button>
+          <button type="submit" class="px-5 py-2 rounded bg-red-700 hover:bg-red-600 text-white font-heading tracking-wider uppercase text-sm font-bold">Kaydet</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 9. POLAROID DUVARI AYAR MODALI (Sadece President) -->
+  <div id="polaroid-modal" class="hidden fixed inset-0 z-[70] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="mc-card rounded-md w-full max-w-md overflow-hidden animate-modal">
+      <div class="mc-card-header px-5 py-3.5 flex items-center justify-between">
+        <h3 class="font-heading text-lg font-bold text-white tracking-wider uppercase">POLAROID DUVARI AYARI</h3>
+        <button onclick="closeModal('polaroid-modal')" class="text-zinc-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+      </div>
+      <form onsubmit="handleSavePolaroid(event)" class="p-5 space-y-3.5">
+        <input type="hidden" id="polaroid-user-id" />
+        <div id="polaroid-target-name" class="text-sm font-bold text-amber-400"></div>
+        <label class="flex items-center gap-2.5 text-xs text-zinc-200 cursor-pointer bg-[#101015] border border-steel rounded p-3">
+          <input id="polaroid-enabled" type="checkbox" class="accent-red-700 w-4 h-4" />
+          <span>Bu üye Polaroid duvarında görünsün</span>
+        </label>
+        <div>
+          <label class="block text-xs font-semibold text-zinc-300 mb-1">Polaroid Fotoğraf URL (İsteğe Bağlı)</label>
+          <input id="polaroid-img-url" type="url" placeholder="Boş bırakılırsa üye avatarı kullanılır" class="w-full px-3 py-2 rounded bg-[#0e0e13] border border-steel text-xs text-white focus:outline-none focus:border-red-700" />
+        </div>
+        <div>
+          <label class="w-full py-2 px-3 rounded bg-zinc-900 hover:bg-zinc-800 border border-steel text-xs text-zinc-200 cursor-pointer flex items-center justify-center gap-2 transition">
+            <i class="fa-solid fa-upload text-red-500"></i> Cihazdan Polaroid Fotoğrafı Seç
+            <input type="file" accept="image/*" class="hidden" onchange="handlePolaroidFileSelect(event)" />
+          </label>
+        </div>
+        <div id="polaroid-preview-box" class="hidden rounded overflow-hidden border border-steel bg-[#0e0e13]">
+          <img id="polaroid-preview-img" src="" class="w-full max-h-44 object-contain" />
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-zinc-300 mb-1">Polaroid Alt Notu</label>
+          <input id="polaroid-note" type="text" placeholder="Örn: Kulübün güvenliğinden sorumlu..." class="w-full px-3 py-2 rounded bg-[#0e0e13] border border-steel text-xs text-white focus:outline-none focus:border-red-700" />
+        </div>
+        <div class="flex justify-end gap-2 pt-1">
+          <button type="button" onclick="closeModal('polaroid-modal')" class="px-4 py-2 rounded bg-zinc-800 hover:bg-zinc-700 text-xs text-zinc-300">İptal</button>
+          <button type="submit" class="px-5 py-2 rounded bg-red-700 hover:bg-red-600 text-white font-heading tracking-wider uppercase text-sm font-bold">Kaydet</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 10. RÜTBE EKLE / KALDIR MODALI (Secretary ve Üstü) -->
+  <div id="ranks-modal" class="hidden fixed inset-0 z-[70] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="mc-card rounded-md w-full max-w-lg max-h-[90vh] flex flex-col overflow-hidden animate-modal">
+      <div class="mc-card-header px-5 py-3.5 flex items-center justify-between shrink-0">
+        <h3 class="font-heading text-lg font-bold text-white tracking-wider uppercase">RÜTBE YÖNETİMİ</h3>
+        <button onclick="closeModal('ranks-modal')" class="text-zinc-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+      </div>
+      <div class="p-5 space-y-4 overflow-y-auto">
+        <form onsubmit="handleAddCustomRank(event)" class="bg-[#101015] border border-steel rounded p-3 space-y-2.5">
+          <div class="text-xs font-bold uppercase tracking-wider text-zinc-300">Yeni Rütbe Ekle (Kendi Rütbenizin Altında)</div>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+            <input id="new-rank-name" type="text" required placeholder="Rütbe Adı (Örn: Nomad)" class="sm:col-span-2 px-3 py-2 rounded bg-[#16161c] border border-steel text-xs text-white focus:outline-none focus:border-red-700" />
+            <input id="new-rank-level" type="number" step="0.5" min="0.5" max="8.5" required placeholder="Seviye (0.5 - 8.5)" class="px-3 py-2 rounded bg-[#16161c] border border-steel text-xs text-white focus:outline-none focus:border-red-700" />
+          </div>
+          <button type="submit" class="w-full py-2 rounded bg-red-700 hover:bg-red-600 text-white text-xs font-bold uppercase tracking-wider transition">Rütbe Ekle</button>
+        </form>
+        <div id="ranks-manage-list" class="space-y-1.5"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== FIREBASE & NETLIFY UYGULAMA MANTIĞI ==================== -->
+  <script type="module">
+    // ---- Netlify Functions + Blobs istemci katmanı (Firestore benzeri arayüz)
+    let authToken = '';
+    try { authToken = localStorage.getItem('lostmc_token') || ''; } catch {}
+    async function api(path, opts = {}) {
+      const r = await fetch('/api' + path, { ...opts, headers: { 'Content-Type': 'application/json', ...(authToken ? { Authorization: 'Bearer ' + authToken } : {}) } });
+      let d = {}; try { d = await r.json(); } catch {}
+      if (!r.ok) { const e = new Error(d.error || ('Sunucu hatası ' + r.status)); e.status = r.status; throw e; }
+      return d;
+    }
+    const strip = (n) => String(n).replace(/^lostmc_/, '');
+    const listeners = []; let revs = {}; let polling = false;
+    async function pollNow() {
+      if (polling) return; polling = true;
+      try {
+        const out = await api('/sync?revs=' + encodeURIComponent(JSON.stringify(revs)));
+        for (const col of Object.keys(out)) {
+          revs[col] = out[col].rev;
+          const snap = { docs: out[col].rows.map(r => ({ id: r.id, data: () => r })) };
+          listeners.filter(l => l.col === col).forEach(l => l.cb(snap));
+        }
+      } catch (e) { listeners.forEach(l => l.errCb && l.errCb(e)); }
+      polling = false;
+    }
+    setInterval(() => { if (!document.hidden && listeners.length) pollNow(); }, 5000);
+    document.addEventListener('visibilitychange', () => { if (!document.hidden && listeners.length) pollNow(); });
+    function resetSync() { revs = {}; pollNow(); }
+    function onSnapshot(ref, cb, errCb) { listeners.push({ col: ref.col, cb, errCb }); }
+    async function addDoc(ref, data) { const r = await api('/col/' + ref.col, { method: 'POST', body: JSON.stringify(data) }); pollNow(); return r; }
+    async function setDoc(ref, data) { await api(`/doc/${ref.col}/${ref.id}`, { method: 'PUT', body: JSON.stringify({ data }) }); pollNow(); }
+    const updateDoc = setDoc;
+    async function deleteDoc(ref) { await api(`/doc/${ref.col}/${ref.id}`, { method: 'DELETE' }); pollNow(); }
+
+    // ==================== NETLIFY CANLI VERİTABANI YAPILANDIRMASI ====================
+    // Siteyi Netlify'da yayınladığınızda ortak veritabanı için kendi Firebase proje bilgilerinizi
+    // aşağıdaki CUSTOM_FIREBASE_CONFIG içine yapıştırmanız yeterlidir.
+    const CUSTOM_FIREBASE_CONFIG = {
+      apiKey: "",
+      authDomain: "",
+      projectId: "",
+      storageBucket: "",
+      messagingSenderId: "",
+      appId: ""
+    };
+
+    // ==================== 10 KADEMELİ MC RÜTBE HİYERARŞİSİ ====================
+    const DEFAULT_RANKS = [
+      { level: 0, name: "Prospect", badge: "bg-zinc-900 text-zinc-400 border-zinc-700", icon: "fa-wrench", core: true },
+      { level: 1, name: "Hangaround", badge: "bg-zinc-800 text-zinc-300 border-zinc-600", icon: "fa-motorcycle", core: true },
+      { level: 2, name: "Member (Full Patch)", badge: "bg-emerald-950 text-emerald-300 border-emerald-800", icon: "fa-shield", core: true },
+      { level: 3, name: "Enforcer", badge: "bg-rose-950 text-rose-300 border-rose-800", icon: "fa-gavel", core: true },
+      { level: 4, name: "Road Captain", badge: "bg-sky-950 text-sky-300 border-sky-800", icon: "fa-road", core: true },
+      { level: 5, name: "Secretary", badge: "bg-indigo-950 text-indigo-300 border-indigo-800", icon: "fa-feather", core: true },
+      { level: 6, name: "Treasurer", badge: "bg-teal-950 text-teal-300 border-teal-800", icon: "fa-coins", core: true },
+      { level: 7, name: "Sergeant at Arms", badge: "bg-orange-950 text-orange-300 border-orange-800", icon: "fa-crosshairs", core: true },
+      { level: 8, name: "Vice President", badge: "bg-red-950 text-red-300 border-red-700", icon: "fa-star", core: true },
+      { level: 9, name: "President", badge: "bg-gradient-to-r from-red-800 via-red-700 to-amber-600 text-white border-amber-400", icon: "fa-crown", core: true }
+    ];
+
+    const MANAGER_MIN_RANK = 5; // Secretary (5) ve üstü
+    const PRESIDENT_RANK = 9;
+    const LOCAL_STORE_KEY = 'lostmc_portal_state_v2';
+
+    // ==================== UYGULAMA DURUMU ====================
+    let RANKS = [...DEFAULT_RANKS];
+    let db = null;
+    let auth = null;
+    let firebaseUser = null;
+    let useMockFallback = false;
+
+    let currentUser = null;
+    let authMode = 'login';
+    let membersViewMode = 'cards';
+    let selectedTicketId = null;
+    let miniChatOpen = false;
+    let unreadMiniChat = 0;
+
+    let usersList = [];
+    let usersLoaded = false;
+    let localModeReason = '';
+    let postsList = [];
+    let galleryList = [];
+    let ticketsList = [];
+    let chatMessages = [];
+    let customLogoUrl = '';
+
+    // Geçici form verileri
+    let tempAvatarData = '';
+    let tempPostMedia = [];
+    let tempGalleryData = '';
+    let tempPolaroidData = '';
+    let tempTicketEmails = [];
+    let tempTicketMedia = [];
+    let tempCommentMedia = {};
+    let tempTicketReplyMedia = '';
+    let tempChatMedia = '';
+
+    // ==================== VARSAYILAN THE LOST MC SVG LOGOSU ====================
+    const DEFAULT_LOGO_SVG = `
+      <svg viewBox="0 0 220 220" class="w-full h-full object-contain" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="wingGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stop-color="#4a3e1f"/>
+            <stop offset="100%" stop-color="#1e190b"/>
+          </linearGradient>
+        </defs>
+        <!-- Üst Rocker: THE LOST -->
+        <path d="M22,42 Q110,10 198,42 L182,82 Q110,58 38,82 Z" fill="#09090b" stroke="#9ca3af" stroke-width="3.5" stroke-linejoin="round"/>
+        <text x="110" y="61" text-anchor="middle" fill="#f4f4f5" font-family="Oswald, sans-serif" font-weight="700" font-size="27" letter-spacing="3">THE LOST</text>
+        <!-- Kanatlar -->
+        <path d="M40,80 L18,108 L34,112 L16,134 L36,138 L24,160 L50,162 L44,182 L78,180 L92,196 L110,186 L128,196 L142,180 L176,182 L170,162 L196,160 L184,138 L204,134 L186,112 L202,108 L180,80 L152,135 L110,152 L68,135 Z" fill="url(#wingGrad)" stroke="#9ca3af" stroke-width="3" stroke-linejoin="round"/>
+        <!-- Kanat İçi Beyaz Tüyler -->
+        <path d="M52,106 L74,140 M42,126 L70,150 M46,148 L76,162 M168,106 L146,140 M178,126 L150,150 M174,148 L144,162" stroke="#f4f4f5" stroke-width="4" stroke-linecap="round"/>
+        <!-- Orta Kalkan & MC Kutusu -->
+        <path d="M72,82 Q110,70 148,82 L144,136 Q110,152 76,136 Z" fill="#18181b" stroke="#9ca3af" stroke-width="2.5"/>
+        <rect x="86" y="92" width="48" height="36" rx="7" fill="#09090b" stroke="#d4d4d8" stroke-width="2.5"/>
+        <text x="110" y="119" text-anchor="middle" fill="#ffffff" font-family="Oswald, sans-serif" font-weight="700" font-size="24" letter-spacing="2">MC</text>
+        <!-- Kartal Başı -->
+        <path d="M94,146 Q110,136 125,146 L123,164 Q110,168 96,162 Z" fill="#f4f4f5" stroke="#18181b" stroke-width="2"/>
+        <circle cx="115" cy="151" r="2.2" fill="#09090b"/>
+        <!-- Gaga -->
+        <path d="M122,148 Q135,149 132,162 Q126,158 121,158 Z" fill="#f59e0b" stroke="#18181b" stroke-width="1.8"/>
+        <!-- Pençeler -->
+        <path d="M96,184 L92,198 M101,185 L100,200 M106,185 L108,198 M114,185 L112,198 M119,185 L120,200 M124,184 L128,198" stroke="#f59e0b" stroke-width="3.2" stroke-linecap="round"/>
+      </svg>
+    `;
+
+    // ==================== YARDIMCI & YETKİ FONKSİYONLARI ====================
+    function getAppId() {
+      return typeof __app_id !== 'undefined' && __app_id ? __app_id : 'the-lost-mc-portal';
+    }
+
+    function colRef(name) { return { col: strip(name) }; }
+
+    function docRef(name, id) { return { col: strip(name), id }; }
+
+    function isPresidentUser(user) {
+      return Boolean(user && Number(user.rank) >= PRESIDENT_RANK);
+    }
+
+    function isManagerUser(user) {
+      return Boolean(user && Number(user.rank) >= MANAGER_MIN_RANK);
+    }
+
+    // İçerik (konu, yorum, galeri) yetkisi: kendi içeriği, ya da Secretary+ yönetici
+    // kendi rütbesinden yüksek birinin içeriğine DOKUNAMAZ. President her şeye erişir.
+    function canModerateContent(actor, authorId) {
+      if (!actor) return false;
+      if (authorId && actor.id === authorId) return true;
+      if (!isManagerUser(actor)) return false;
+      if (isPresidentUser(actor)) return true;
+      const author = authorId ? usersList.find(u => u.id === authorId) : null;
+      if (!author) return true; // eski / silinmiş yazarın içeriği
+      return Number(author.rank) <= Number(actor.rank);
+    }
+
+    function canManageMemberRank(actor, target) {
+      if (!actor || !target || !isManagerUser(actor)) return false;
+      if (isPresidentUser(actor)) return true;
+      return Number(target.rank) < Number(actor.rank);
+    }
+
+    function getMaxAssignableRank(actor) {
+      if (!actor || !isManagerUser(actor)) return -1;
+      if (isPresidentUser(actor)) return PRESIDENT_RANK;
+      const lowerRanks = RANKS.filter(r => r.level < Number(actor.rank));
+      return lowerRanks.length ? lowerRanks[lowerRanks.length - 1].level : 0;
+    }
+
+    function getRankInfo(level) {
+      const num = Number(level);
+      return RANKS.find(r => r.level === num) || RANKS[0];
+    }
+
+    function sortUsersList() {
+      usersList.sort((a, b) => (Number(b.rank) - Number(a.rank)) || ((a.createdAt || 0) - (b.createdAt || 0)));
+    }
+
+    function escapeHtml(str) {
+      return String(str ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function formatDate(ts) {
+      if (!ts) return '';
+      const d = new Date(ts);
+      return d.toLocaleDateString('tr-TR', { day: '2-digit', month: '2-digit', year: 'numeric' }) + ' ' +
+             d.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
+    }
+
+    function getAvatarUrl(avatar, name) {
+      if (avatar && (avatar.startsWith('http') || avatar.startsWith('data:image'))) return avatar;
+      const initials = encodeURIComponent((name || 'LM').slice(0, 2).toUpperCase());
+      return `https://placehold.co/150x150/16161c/e5e7eb?text=${initials}`;
+    }
+
+    function maskEmail(email) {
+      if (!email || !email.includes('@')) return '***';
+      const [local, domain] = email.split('@');
+      return `${local.slice(0, 2)}***@${domain}`;
+    }
+
+    async function hashPassword(pw) {
+      try {
+        const data = new TextEncoder().encode('lostmc::' + pw);
+        const buf = await crypto.subtle.digest('SHA-256', data);
+        return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+      } catch {
+        return btoa(unescape(encodeURIComponent(pw)));
+      }
+    }
+
+    function processImageFile(file, maxWidth = 900) {
+      return new Promise((resolve, reject) => {
+        if (!file) return reject('Dosya seçilmedi.');
+        const isGif = file.type === 'image/gif' || file.name.toLowerCase().endsWith('.gif');
+        if (isGif) {
+          if (file.size > 900 * 1024) return reject('GIF dosyası 900KB sınırını aşıyor. Link ile ekleyin.');
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result);
+          reader.onerror = () => reject('GIF okunamadı.');
+          reader.readAsDataURL(file);
+          return;
+        }
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          const img = new Image();
+          img.onload = () => {
+            const scale = Math.min(1, maxWidth / img.width);
+            const canvas = document.createElement('canvas');
+            canvas.width = Math.round(img.width * scale);
+            canvas.height = Math.round(img.height * scale);
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            resolve(canvas.toDataURL('image/jpeg', 0.82));
+          };
+          img.onerror = () => reject('Görsel işlenemedi.');
+          img.src = ev.target.result;
+        };
+        reader.onerror = () => reject('Dosya okunamadı.');
+        reader.readAsDataURL(file);
+      });
+    }
+
+    function saveLocalFallbackState() {
+      if (!useMockFallback) return;
+      try {
+        localStorage.setItem(LOCAL_STORE_KEY, JSON.stringify({
+          usersList,
+          postsList,
+          galleryList,
+          ticketsList,
+          chatMessages,
+          customLogoUrl,
+          RANKS
+        }));
+      } catch (e) {
+        console.warn('LocalStorage kaydı atlandı:', e);
+      }
+    }
+
+    function loadLocalFallbackState() {
+      try {
+        const raw = localStorage.getItem(LOCAL_STORE_KEY);
+        if (!raw) return;
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed.usersList)) usersList = parsed.usersList;
+        if (Array.isArray(parsed.postsList)) postsList = parsed.postsList;
+        if (Array.isArray(parsed.galleryList)) galleryList = parsed.galleryList;
+        if (Array.isArray(parsed.ticketsList)) ticketsList = parsed.ticketsList;
+        if (Array.isArray(parsed.chatMessages)) chatMessages = parsed.chatMessages;
+        if (typeof parsed.customLogoUrl === 'string') customLogoUrl = parsed.customLogoUrl;
+        if (Array.isArray(parsed.RANKS) && parsed.RANKS.length) RANKS = parsed.RANKS;
+        sortUsersList();
+      } catch (e) {
+        console.warn('LocalStorage okunamadı:', e);
+      }
+    }
+
+    // ==================== TOAST & MODAL YÖNETİMİ ====================
+    window.showToast = function(message, type = 'info') {
+      const container = document.getElementById('toast-container');
+      const styles = {
+        success: 'bg-emerald-950/95 border-emerald-700 text-emerald-200',
+        error: 'bg-red-950/95 border-red-700 text-red-200',
+        warning: 'bg-amber-950/95 border-amber-700 text-amber-200',
+        info: 'bg-zinc-900/95 border-steel text-zinc-200'
+      };
+      const el = document.createElement('div');
+      el.className = `pointer-events-auto px-4 py-3 rounded border shadow-xl text-xs font-medium animate-toast flex items-center justify-between gap-3 ${styles[type] || styles.info}`;
+      el.innerHTML = `<span>${escapeHtml(message)}</span>`;
+      container.appendChild(el);
+      setTimeout(() => {
+        el.style.opacity = '0';
+        el.style.transition = 'opacity 0.25s ease';
+        setTimeout(() => el.remove(), 260);
+      }, 3400);
+    };
+
+    window.closeModal = function(id) {
+      const el = document.getElementById(id);
+      if (el) el.classList.add('hidden');
+    };
+
+    window.openLightbox = function(url) {
+      if (!url) return;
+      document.getElementById('lightbox-img').src = url;
+      document.getElementById('lightbox-modal').classList.remove('hidden');
+    };
+
+    window.toggleMobileMenu = function() {
+      document.getElementById('mobile-menu').classList.toggle('hidden');
+    };
+
+    window.switchTab = function(tabName) {
+      document.querySelectorAll('.tab-section').forEach(sec => sec.classList.add('hidden'));
+      const activeSec = document.getElementById(`tab-${tabName}`);
+      if (activeSec) activeSec.classList.remove('hidden');
+
+      document.querySelectorAll('.nav-btn').forEach(btn => {
+        if (btn.dataset.tab === tabName) {
+          btn.classList.add('nav-tab-active');
+        } else {
+          btn.classList.remove('nav-tab-active');
+        }
+      });
+
+      if (tabName === 'chat') {
+        unreadMiniChat = 0;
+        updateMiniChatUnreadBadge();
+        scrollChatToBottom('full-chat-messages');
+      }
+    };
+
+    // ==================== FIREBASE & NETLIFY BAŞLATMA ====================
+    async function initFirebase() {
+      try {
+        if (location.protocol === 'file:') throw new Error('Dosya olarak açıldı; sunucu yok.');
+        await api('/ping');
+        firebaseUser = { uid: 'netlify' };
+        if (authToken) {
+          try { currentUser = (await api('/me')).user; }
+          catch { authToken = ''; try { localStorage.removeItem('lostmc_token'); } catch {} }
+        }
+        startRealtimeListeners();
+        pollNow();
+      } catch (err) {
+        console.warn('Yerel önizleme moduna geçildi:', err.message);
+        useMockFallback = true;
+        usersLoaded = true;
+        localModeReason = err.message || '';
+        showLocalModeBanner();
+        loadLocalFallbackState();
+        renderLogo();
+        refreshAllUI();
+      }
+    }
+
+    function showLocalModeBanner() {
+      const b = document.getElementById('local-mode-banner');
+      if (b) {
+        b.classList.remove('hidden');
+        const r = document.getElementById('local-mode-reason');
+        if (r) r.textContent = localModeReason;
+      }
+      const demo = document.getElementById('demo-login-box');
+      if (demo) demo.classList.remove('hidden');
+    }
+
+    // Hiç gerçek President yoksa, en eski gerçek üye otomatik President olur.
+    async function rescueFounder(user) {
+      if (!user || user.isDemo) return user;
+      const real = usersList.filter(u => !u.isDemo);
+      if (real.some(u => Number(u.rank) === PRESIDENT_RANK)) return user;
+      real.sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
+      if (!real.length || real[0].id !== user.id) return user;
+      try {
+        user.rank = PRESIDENT_RANK;
+        if (useMockFallback) saveLocalFallbackState();
+        else await updateDoc(docRef('lostmc_users', user.id), { rank: PRESIDENT_RANK });
+        showToast('Kurucu üye olarak President rütbesi verildi.', 'success');
+      } catch (e) { console.warn(e); }
+      return user;
+    }
+
+    function initNetlifyIdentity() {
+      if (typeof window.netlifyIdentity === 'undefined') return;
+      const btn = document.getElementById('btn-netlify-identity');
+      const isNetlifyHost = location.hostname.endsWith('netlify.app') || location.hostname.endsWith('netlify.com');
+      if (btn && isNetlifyHost) {
+        btn.classList.remove('hidden');
+      }
+      window.netlifyIdentity.on('login', async (niUser) => {
+        if (!niUser || !niUser.email) return;
+        await syncNetlifyIdentityUser(niUser);
+        window.netlifyIdentity.close();
+      });
+      window.netlifyIdentity.on('logout', () => {
+        if (currentUser && currentUser.authProvider === 'netlify') {
+          window.logoutUser();
+        }
+      });
+    }
+
+    window.openNetlifyIdentity = function() {
+      if (typeof window.netlifyIdentity === 'undefined') {
+        return showToast('Netlify Identity bu ortamda aktif değil.', 'warning');
+      }
+      closeModal('auth-modal');
+      window.netlifyIdentity.open();
+    };
+
+    async function syncNetlifyIdentityUser(niUser) {
+      const email = niUser.email.trim().toLowerCase();
+      const fullName = niUser.user_metadata?.full_name || email.split('@')[0];
+      let found = usersList.find(u => (u.email || '').toLowerCase() === email);
+
+      if (!found) {
+        const hasRealPresident = usersList.some(u => !u.isDemo && Number(u.rank) === PRESIDENT_RANK);
+        const initialRank = hasRealPresident ? 0 : PRESIDENT_RANK;
+        const newUserObj = {
+          email,
+          passwordHash: '',
+          authProvider: 'netlify',
+          rpName: fullName,
+          avatar: niUser.user_metadata?.avatar_url || '',
+          rank: initialRank,
+          showOnPolaroid: false,
+          polaroidImage: '',
+          polaroidNote: '',
+          isDemo: false,
+          createdAt: Date.now()
+        };
+        if (useMockFallback) {
+          found = { id: 'ni_' + Date.now(), ...newUserObj };
+          usersList.push(found);
+          sortUsersList();
+          saveLocalFallbackState();
+        } else if (firebaseUser) {
+          const ref = await addDoc(colRef('lostmc_users'), newUserObj);
+          found = { id: ref.id, ...newUserObj };
+          if (!usersList.some(u => u.id === found.id)) {
+            usersList.push(found);
+            sortUsersList();
+          }
+        }
+      }
+
+      if (found) {
+        currentUser = found;
+        refreshAllUI();
+        showToast(`Netlify girişi yapıldı: ${found.rpName} (${getRankInfo(found.rank).name})`, 'success');
+      }
+    }
+
+    function refreshAllUI() {
+      renderHeaderAuth();
+      renderForumPosts();
+      renderGallery();
+      renderMembers();
+      renderTickets();
+      renderChats();
+    }
+
+    function startRealtimeListeners() {
+      if (!firebaseUser) return;
+
+      // 1. Kullanıcılar
+      onSnapshot(colRef('lostmc_users'), (snap) => {
+        usersList = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        usersLoaded = true;
+        sortUsersList();
+        if (currentUser) {
+          const updated = usersList.find(u => u.id === currentUser.id || (u.email && currentUser.email && u.email.toLowerCase() === currentUser.email.toLowerCase()));
+          if (updated) currentUser = updated;
+        }
+        renderHeaderAuth();
+        renderForumPosts();
+        renderGallery();
+        renderMembers();
+        renderTickets();
+      }, (err) => {
+        console.error('Users listener hatası:', err);
+        showToast('Üye listesi okunamadı: Firestore kurallarını kontrol edin (' + (err.code || 'hata') + ').', 'error');
+      });
+
+      // 2. Forum Konuları
+      onSnapshot(colRef('lostmc_posts'), (snap) => {
+        postsList = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        postsList.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+        renderForumPosts();
+      }, (err) => console.error('Posts listener hatası:', err));
+
+      // 3. Galeri
+      onSnapshot(colRef('lostmc_gallery'), (snap) => {
+        galleryList = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        galleryList.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+        renderGallery();
+      }, (err) => console.error('Gallery listener hatası:', err));
+
+      // 4. Ticketlar
+      onSnapshot(colRef('lostmc_tickets'), (snap) => {
+        ticketsList = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        ticketsList.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+        renderTickets();
+      }, (err) => console.error('Tickets listener hatası:', err));
+
+      // 5. Sohbet Mesajları
+      onSnapshot(colRef('lostmc_chat'), (snap) => {
+        const prevCount = chatMessages.length;
+        chatMessages = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        chatMessages.sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
+        if (chatMessages.length > prevCount && !miniChatOpen) {
+          const chatTabVisible = !document.getElementById('tab-chat').classList.contains('hidden');
+          if (!chatTabVisible) {
+            unreadMiniChat += (chatMessages.length - prevCount);
+            updateMiniChatUnreadBadge();
+          }
+        }
+        renderChats();
+      }, (err) => console.error('Chat listener hatası:', err));
+
+      // 6. Ayarlar (Özel Logo & Özel Rütbeler)
+      onSnapshot(colRef('lostmc_settings'), (snap) => {
+        const cfg = snap.docs.find(d => d.id === 'club_config')?.data();
+        customLogoUrl = cfg?.customLogoUrl || '';
+        if (Array.isArray(cfg?.customRanks) && cfg.customRanks.length > 0) {
+          RANKS = [...cfg.customRanks].sort((a, b) => a.level - b.level);
+        } else {
+          RANKS = [...DEFAULT_RANKS];
+        }
+        renderLogo();
+        renderHeaderAuth();
+        renderMembers();
+        if (!document.getElementById('ranks-modal').classList.contains('hidden')) {
+          renderRanksManageList();
+        }
+      }, (err) => console.error('Settings listener hatası:', err));
+    }
+
+    // ==================== LOGO YÖNETİMİ ====================
+    function renderLogo() {
+      const mini = document.getElementById('header-mini-logo');
+      const hero = document.getElementById('hero-logo-wrapper');
+      const modalPrev = document.getElementById('logo-modal-preview');
+
+      const html = customLogoUrl
+        ? `<img src="${escapeHtml(customLogoUrl)}" alt="The Lost MC" class="w-full h-full object-contain" />`
+        : DEFAULT_LOGO_SVG;
+
+      if (mini) mini.innerHTML = html;
+      if (hero) hero.innerHTML = html;
+      if (modalPrev) modalPrev.innerHTML = html;
+    }
+
+    window.openLogoModal = function() {
+      if (!isPresidentUser(currentUser)) {
+        return showToast('Logoyu sadece President değiştirebilir.', 'error');
+      }
+      renderLogo();
+      document.getElementById('logo-url-input').value = customLogoUrl.startsWith('http') ? customLogoUrl : '';
+      document.getElementById('logo-modal').classList.remove('hidden');
+    };
+
+    async function persistLogo(url) {
+      customLogoUrl = url;
+      renderLogo();
+      if (useMockFallback) {
+        saveLocalFallbackState();
+      } else if (firebaseUser) {
+        await setDoc(docRef('lostmc_settings', 'club_config'), {
+          customLogoUrl: url,
+          updatedBy: currentUser?.rpName || '',
+          updatedAt: Date.now()
+        }, { merge: true });
+      }
+      closeModal('logo-modal');
+      showToast('Logo güncellendi.', 'success');
+    }
+
+    window.handleLogoFileUpload = async function(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      try {
+        const dataUrl = await processImageFile(file, 500);
+        await persistLogo(dataUrl);
+      } catch (err) {
+        showToast(String(err), 'error');
+      }
+    };
+
+    window.saveLogoFromUrl = async function() {
+      const url = document.getElementById('logo-url-input').value.trim();
+      if (!url) return showToast('Geçerli bir URL girin.', 'warning');
+      await persistLogo(url);
+    };
+
+    window.resetDefaultLogo = async function() {
+      await persistLogo('');
+    };
+
+    // ==================== KİMLİK DOĞRULAMA (GİRİŞ / KAYIT) ====================
+    window.openAuthModal = function(mode = 'login') {
+      setAuthMode(mode);
+      document.getElementById('auth-modal').classList.remove('hidden');
+    };
+
+    window.setAuthMode = function(mode) {
+      authMode = mode;
+      const isReg = mode === 'register';
+      document.getElementById('auth-modal-title').textContent = isReg ? 'KAYIT OL' : 'GİRİŞ YAP';
+      document.getElementById('auth-submit-btn').textContent = isReg ? 'Kayıt Ol' : 'Giriş Yap';
+      document.getElementById('register-only-fields').classList.toggle('hidden', !isReg);
+      document.getElementById('auth-tab-login').className = !isReg
+        ? 'py-2 rounded text-xs font-bold uppercase tracking-wider bg-red-700 text-white transition'
+        : 'py-2 rounded text-xs font-bold uppercase tracking-wider text-zinc-400 hover:text-white transition';
+      document.getElementById('auth-tab-register').className = isReg
+        ? 'py-2 rounded text-xs font-bold uppercase tracking-wider bg-red-700 text-white transition'
+        : 'py-2 rounded text-xs font-bold uppercase tracking-wider text-zinc-400 hover:text-white transition';
+    };
+
+    window.handleAvatarFileSelect = async function(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      try {
+        tempAvatarData = await processImageFile(file, 300);
+        document.getElementById('auth-avatar-preview-img').src = tempAvatarData;
+        document.getElementById('auth-avatar-preview').classList.remove('hidden');
+      } catch (err) {
+        showToast(String(err), 'error');
+      }
+    };
+
+    async function serverAuth(email, password, rpName, avatar) {
+      try {
+        const d = await api(authMode === 'register' ? '/register' : '/login', { method: 'POST', body: JSON.stringify({ email, password, rpName, avatar }) });
+        authToken = d.token;
+        try { localStorage.setItem('lostmc_token', authToken); } catch {}
+        currentUser = d.user;
+        tempAvatarData = '';
+        document.getElementById('auth-form').reset();
+        document.getElementById('auth-avatar-preview').classList.add('hidden');
+        closeModal('auth-modal');
+        resetSync();
+        refreshAllUI();
+        showToast(`${d.user.rpName} — ${getRankInfo(d.user.rank).name}`, 'success');
+      } catch (err) { showToast(err.message, 'error'); }
+    }
+
+    window.handleAuthSubmit = async function(e) {
+      e.preventDefault();
+      const email = document.getElementById('auth-email').value.trim().toLowerCase();
+      const password = document.getElementById('auth-password').value;
+      const rpName = document.getElementById('auth-rpname').value.trim();
+      const avatarUrlInput = document.getElementById('auth-avatar-url').value.trim();
+      if (!useMockFallback) return serverAuth(email, password, rpName, tempAvatarData || avatarUrlInput || '');
+      const pwHash = await hashPassword(password);
+
+      if (authMode === 'register') {
+        if (!rpName) return showToast('Karakter adı girin.', 'warning');
+        if (!useMockFallback && !usersLoaded) {
+          return showToast('Üye listesi yükleniyor, birkaç saniye sonra tekrar deneyin.', 'warning');
+        }
+        if (usersList.find(u => (u.email || '').toLowerCase() === email)) {
+          return showToast('Bu e-posta zaten kayıtlı.', 'error');
+        }
+
+        // İlk kayıt olan gerçek üye otomatik President (9), sonrakiler Prospect (0)
+        const hasRealPresident = usersList.some(u => !u.isDemo && Number(u.rank) === PRESIDENT_RANK);
+        const initialRank = hasRealPresident ? 0 : PRESIDENT_RANK;
+
+        const newUserObj = {
+          email,
+          passwordHash: pwHash,
+          rpName,
+          avatar: tempAvatarData || avatarUrlInput || '',
+          rank: initialRank,
+          showOnPolaroid: false,
+          polaroidImage: '',
+          polaroidNote: '',
+          isDemo: false,
+          createdAt: Date.now()
+        };
+
+        try {
+          if (useMockFallback) {
+            currentUser = { id: 'u_' + Date.now(), ...newUserObj };
+            usersList.push(currentUser);
+            sortUsersList();
+            saveLocalFallbackState();
+          } else {
+            if (!firebaseUser) return showToast('Bağlantı bekleniyor...', 'warning');
+            const ref = await addDoc(colRef('lostmc_users'), newUserObj);
+            currentUser = { id: ref.id, ...newUserObj };
+            if (!usersList.some(u => u.id === currentUser.id)) {
+              usersList.push(currentUser);
+              sortUsersList();
+            }
+          }
+          tempAvatarData = '';
+          document.getElementById('auth-form').reset();
+          document.getElementById('auth-avatar-preview').classList.add('hidden');
+          closeModal('auth-modal');
+          refreshAllUI();
+          showToast(`${rpName} — ${getRankInfo(initialRank).name} olarak kayıt olundu.`, 'success');
+        } catch (err) {
+          console.error(err);
+          showToast('Kayıt hatası.', 'error');
+        }
+      } else {
+        const found = usersList.find(u => (u.email || '').toLowerCase() === email);
+        if (!found) return showToast('Hesap bulunamadı.', 'error');
+        if (found.passwordHash && found.passwordHash !== pwHash) return showToast('Şifre hatalı.', 'error');
+
+        currentUser = await rescueFounder(found);
+        document.getElementById('auth-form').reset();
+        closeModal('auth-modal');
+        refreshAllUI();
+        showToast(`Giriş yapıldı: ${found.rpName} (${getRankInfo(found.rank).name})`, 'success');
+      }
+    };
+
+    window.loginAsDemoPresident = async function() {
+      const demoEmail = 'baskan@lostmc.rp';
+      let found = usersList.find(u => (u.email || '').toLowerCase() === demoEmail);
+      if (!found) {
+        const pwHash = await hashPassword('lostmc123');
+        const newPres = {
+          email: demoEmail,
+          passwordHash: pwHash,
+          rpName: 'Demo President',
+          avatar: 'https://placehold.co/150x150/16161c/b91c1c?text=PR',
+          rank: PRESIDENT_RANK,
+          showOnPolaroid: false,
+          polaroidImage: '',
+          polaroidNote: '',
+          isDemo: true,
+          createdAt: Date.now()
+        };
+        if (useMockFallback) {
+          found = { id: 'u_demo_pres', ...newPres };
+          usersList.push(found);
+          sortUsersList();
+          saveLocalFallbackState();
+        } else {
+          if (!firebaseUser) return showToast('Bağlantı bekleniyor...', 'warning');
+          await setDoc(docRef('lostmc_users', 'demo_president'), newPres);
+          found = { id: 'demo_president', ...newPres };
+          if (!usersList.some(u => u.id === found.id)) {
+            usersList.push(found);
+            sortUsersList();
+          }
+        }
+      } else if (Number(found.rank) !== PRESIDENT_RANK) {
+        found.rank = PRESIDENT_RANK;
+        if (useMockFallback) {
+          saveLocalFallbackState();
+        } else if (firebaseUser) {
+          await updateDoc(docRef('lostmc_users', found.id), { rank: PRESIDENT_RANK });
+        }
+      }
+      currentUser = found;
+      closeModal('auth-modal');
+      refreshAllUI();
+      showToast('Demo President olarak giriş yapıldı.', 'success');
+    };
+
+    window.loginAsDemoProspect = async function() {
+      const demoEmail = 'prospect@lostmc.rp';
+      let found = usersList.find(u => (u.email || '').toLowerCase() === demoEmail);
+      if (!found) {
+        const pwHash = await hashPassword('lostmc123');
+        const newPros = {
+          email: demoEmail,
+          passwordHash: pwHash,
+          rpName: 'Demo Prospect',
+          avatar: 'https://placehold.co/150x150/16161c/9ca3af?text=PS',
+          rank: 0,
+          showOnPolaroid: false,
+          polaroidImage: '',
+          polaroidNote: '',
+          isDemo: true,
+          createdAt: Date.now()
+        };
+        if (useMockFallback) {
+          found = { id: 'u_demo_pros', ...newPros };
+          usersList.push(found);
+          sortUsersList();
+          saveLocalFallbackState();
+        } else {
+          if (!firebaseUser) return showToast('Bağlantı bekleniyor...', 'warning');
+          await setDoc(docRef('lostmc_users', 'demo_prospect'), newPros);
+          found = { id: 'demo_prospect', ...newPros };
+          if (!usersList.some(u => u.id === found.id)) {
+            usersList.push(found);
+            sortUsersList();
+          }
+        }
+      }
+      currentUser = found;
+      closeModal('auth-modal');
+      refreshAllUI();
+      showToast('Demo Prospect olarak giriş yapıldı.', 'info');
+    };
+
+    window.logoutUser = function() {
+      authToken = ''; try { localStorage.removeItem('lostmc_token'); } catch {}
+      if (!useMockFallback) resetSync();
+      const wasNetlify = currentUser?.authProvider === 'netlify';
+      currentUser = null;
+      selectedTicketId = null;
+      if (wasNetlify && typeof window.netlifyIdentity !== 'undefined') {
+        try { window.netlifyIdentity.logout(); } catch {}
+      }
+      refreshAllUI();
+      showToast('Çıkış yapıldı.', 'info');
+    };
+
+    function renderHeaderAuth() {
+      const area = document.getElementById('header-auth-area');
+      const logoBtn = document.getElementById('btn-change-logo');
+      const manageRanksBtn = document.getElementById('btn-manage-ranks');
+
+      if (!currentUser) {
+        if (logoBtn) logoBtn.classList.add('hidden');
+        if (manageRanksBtn) manageRanksBtn.classList.add('hidden');
+        area.innerHTML = `
+          <button onclick="openAuthModal('login')" class="px-3 py-1.5 rounded bg-carddark hover:bg-cardhover border border-steel text-xs font-semibold text-zinc-200 transition">Giriş</button>
+          <button onclick="openAuthModal('register')" class="px-3 py-1.5 rounded bg-red-700 hover:bg-red-600 text-xs font-bold text-white transition">Kayıt Ol</button>
+        `;
+        return;
+      }
+
+      const isPresident = isPresidentUser(currentUser);
+      const isManager = isManagerUser(currentUser);
+      if (logoBtn) logoBtn.classList.toggle('hidden', !isPresident);
+      if (manageRanksBtn) manageRanksBtn.classList.toggle('hidden', !isManager);
+
+      const rInfo = getRankInfo(currentUser.rank);
+      area.innerHTML = `
+        <div class="flex items-center gap-2.5 bg-[#14141a] border border-steel rounded px-2.5 py-1">
+          <img src="${escapeHtml(getAvatarUrl(currentUser.avatar, currentUser.rpName))}" class="w-7 h-7 rounded object-cover border border-zinc-700" />
+          <div class="hidden sm:flex flex-col leading-tight">
+            <span class="text-xs font-bold text-white">${escapeHtml(currentUser.rpName)}</span>
+            <span class="text-[10px] font-semibold text-zinc-400">${escapeHtml(rInfo.name)}</span>
+          </div>
+          <button onclick="logoutUser()" class="ml-1 text-zinc-400 hover:text-red-400 text-xs px-1.5 py-1" title="Çıkış Yap">
+            <i class="fa-solid fa-right-from-bracket"></i>
+          </button>
+        </div>
+      `;
+    }
+
+    // ==================== FORUM YÖNETİMİ ====================
+    window.openNewPostModal = function() {
+      if (!currentUser) {
+        showToast('Konu açmak için giriş yapın.', 'warning');
+        return openAuthModal('login');
+      }
+      tempPostMedia = [];
+      document.getElementById('post-title').value = '';
+      document.getElementById('post-content').value = '';
+      document.getElementById('post-media-url').value = '';
+      renderPostMediaList();
+      document.getElementById('new-post-modal').classList.remove('hidden');
+    };
+
+    window.addPostMediaFromUrl = function() {
+      const input = document.getElementById('post-media-url');
+      const url = input.value.trim();
+      if (!url) return;
+      tempPostMedia.push(url);
+      input.value = '';
+      renderPostMediaList();
+    };
+
+    window.addPostMediaFromFile = async function(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      try {
+        const dataUrl = await processImageFile(file, 900);
+        tempPostMedia.push(dataUrl);
+        renderPostMediaList();
+      } catch (err) {
+        showToast(String(err), 'error');
+      }
+      e.target.value = '';
+    };
+
+    window.removeTempPostMedia = function(idx) {
+      tempPostMedia.splice(idx, 1);
+      renderPostMediaList();
+    };
+
+    function renderPostMediaList() {
+      const list = document.getElementById('post-media-list');
+      if (!list) return;
+      list.innerHTML = tempPostMedia.map((url, idx) => `
+        <div class="relative rounded overflow-hidden border border-steel bg-[#0e0e13]">
+          <img src="${escapeHtml(url)}" class="w-full h-24 object-cover" />
+          <span class="absolute bottom-1 left-1 text-[10px] px-1.5 py-0.5 rounded bg-black/75 text-amber-300 font-mono">[MEDYA:${idx + 1}]</span>
+          <button type="button" onclick="removeTempPostMedia(${idx})" class="absolute top-1 right-1 w-5 h-5 rounded bg-red-800/90 text-white text-[10px] flex items-center justify-center">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+      `).join('');
+    }
+
+    window.handleCreatePost = async function(e) {
+      e.preventDefault();
+      if (!currentUser) return;
+      const title = document.getElementById('post-title').value.trim();
+      const category = document.getElementById('post-category').value;
+      const content = document.getElementById('post-content').value.trim();
+      if (!title || !content) return;
+
+      const postObj = {
+        title,
+        category,
+        content,
+        media: [...tempPostMedia],
+        authorId: currentUser.id,
+        comments: [],
+        createdAt: Date.now()
+      };
+
+      try {
+        if (useMockFallback) {
+          postsList.unshift({ id: 'p_' + Date.now(), ...postObj });
+          saveLocalFallbackState();
+          renderForumPosts();
+        } else {
+          await addDoc(colRef('lostmc_posts'), postObj);
+        }
+        tempPostMedia = [];
+        closeModal('new-post-modal');
+        showToast('Konu yayınlandı.', 'success');
+      } catch {
+        showToast('Konu oluşturulamadı.', 'error');
+      }
+    };
+
+    function renderPostBodyWithMedia(content, media = []) {
+      const safeText = escapeHtml(content || '');
+      const usedIndices = new Set();
+      let html = safeText.replace(/\[MEDYA:(\d+)\]/g, (match, numStr) => {
+        const idx = Number(numStr) - 1;
+        if (media && media[idx]) {
+          usedIndices.add(idx);
+          const url = escapeHtml(media[idx]);
+          return `<div class="my-3"><img src="${url}" onclick="openLightbox('${url}')" class="max-h-[420px] rounded border border-steel cursor-zoom-in" loading="lazy" /></div>`;
+        }
+        return match;
+      }).replace(/\n/g, '<br/>');
+
+      const remaining = (media || []).filter((_, i) => !usedIndices.has(i));
+      if (remaining.length > 0) {
+        html += `<div class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">${remaining.map(m => {
+          const url = escapeHtml(m);
+          return `<img src="${url}" onclick="openLightbox('${url}')" class="w-full max-h-80 object-cover rounded border border-steel cursor-zoom-in" loading="lazy" />`;
+        }).join('')}</div>`;
+      }
+      return html;
+    }
+
+    window.renderForumPosts = function() {
+      const container = document.getElementById('forum-posts-container');
+      const filter = document.getElementById('forum-category-filter')?.value || 'ALL';
+      const filtered = filter === 'ALL' ? postsList : postsList.filter(p => p.category === filter);
+
+      if (filtered.length === 0) {
+        container.innerHTML = `<div class="mc-card rounded-md p-8 text-center text-zinc-500 text-sm">Henüz konu paylaşılmadı.</div>`;
+        return;
+      }
+
+      container.innerHTML = filtered.map(post => {
+        const canManage = canModerateContent(currentUser, post.authorId);
+        const comments = post.comments || [];
+
+        return `
+          <article class="mc-card rounded-md overflow-hidden">
+            <div class="mc-card-header px-5 py-3 flex flex-wrap items-center justify-between gap-2">
+              <div class="flex items-center gap-2.5">
+                <span class="px-2 py-0.5 text-[10px] font-bold uppercase bg-red-950 text-red-300 border border-red-800/60 rounded-sm">${escapeHtml(post.category || 'Genel')}</span>
+                <h3 class="font-heading text-lg font-bold text-white tracking-wide">${escapeHtml(post.title)}</h3>
+              </div>
+              <div class="flex items-center gap-3 text-[11px] text-zinc-400">
+                <span>${escapeHtml((usersList.find(u => u.id === post.authorId) || {}).rpName || '')} · ${formatDate(post.createdAt)}</span>
+                ${canManage ? `
+                  <button onclick="openEditPostModal('${post.id}')" class="text-zinc-400 hover:text-amber-400 transition" title="Düzenle"><i class="fa-solid fa-pen-to-square"></i></button>
+                  <button onclick="deletePost('${post.id}')" class="text-zinc-500 hover:text-red-500 transition" title="Sil"><i class="fa-solid fa-trash"></i></button>
+                ` : ''}
+              </div>
+            </div>
+
+            <div class="p-5 sm:p-6 flex flex-col justify-between gap-4">
+              <div class="text-sm text-zinc-200 leading-relaxed break-words">
+                ${renderPostBodyWithMedia(post.content, post.media)}
+              </div>
+
+              <div class="pt-3 border-t border-steel/80 space-y-2.5">
+                ${comments.length > 0 ? `
+                  <div class="space-y-2">
+                    ${comments.map(c => `
+                      <div class="bg-[#111116] border border-steel/80 rounded p-3">
+                        <div class="flex items-center justify-between gap-2 mb-1">
+                          <span class="text-[11px] font-bold text-zinc-300">${escapeHtml(c.authorName || 'Üye')}</span>
+                          <div class="flex items-center gap-2">
+                            <span class="text-[10px] text-zinc-500">${formatDate(c.createdAt)}</span>
+                            ${canModerateContent(currentUser, c.authorId) ? `<button onclick="deleteComment('${post.id}', '${c.id}')" class="text-zinc-500 hover:text-red-500 text-[10px]" title="Yorumu Sil"><i class="fa-solid fa-trash"></i></button>` : ''}
+                          </div>
+                        </div>
+                        <p class="text-xs text-zinc-200 break-words">${escapeHtml(c.text)}</p>
+                        ${c.mediaUrl ? `<img src="${escapeHtml(c.mediaUrl)}" onclick="openLightbox('${escapeHtml(c.mediaUrl)}')" class="mt-2 max-h-52 rounded border border-steel cursor-zoom-in" />` : ''}
+                      </div>
+                    `).join('')}
+                  </div>
+                ` : ''}
+
+                ${currentUser ? `
+                  <form onsubmit="handleAddComment(event, '${post.id}')" class="flex flex-col sm:flex-row gap-2 pt-1">
+                    <input id="comment-input-${post.id}" type="text" placeholder="Yorum yaz..." class="flex-1 px-3 py-2 rounded bg-[#0e0e13] border border-steel text-xs text-white focus:outline-none focus:border-red-700" />
+                    <div class="flex items-center gap-1.5">
+                      <label class="px-2.5 py-2 rounded bg-zinc-800 hover:bg-zinc-700 border border-steel text-xs text-zinc-300 cursor-pointer" title="Fotoğraf / GIF Ekle">
+                        <i class="fa-solid fa-image"></i>
+                        <input type="file" accept="image/*,.gif" class="hidden" onchange="handleCommentFileSelect(event, '${post.id}')" />
+                      </label>
+                      <button type="submit" class="px-3.5 py-2 rounded bg-red-700 hover:bg-red-600 text-white text-xs font-semibold transition">Gönder</button>
+                    </div>
+                  </form>
+                  <div id="comment-media-badge-${post.id}" class="${tempCommentMedia[post.id] ? '' : 'hidden'} text-[11px] text-emerald-400">Görsel eklendi</div>
+                ` : ''}
+              </div>
+            </div>
+          </article>
+        `;
+      }).join('');
+    };
+
+    window.handleCommentFileSelect = async function(e, postId) {
+      const file = e.target.files[0];
+      if (!file) return;
+      try {
+        tempCommentMedia[postId] = await processImageFile(file, 700);
+        const badge = document.getElementById(`comment-media-badge-${postId}`);
+        if (badge) badge.classList.remove('hidden');
+        showToast('Yorum görseli hazır.', 'success');
+      } catch (err) {
+        showToast(String(err), 'error');
+      }
+      e.target.value = '';
+    };
+
+    window.handleAddComment = async function(e, postId) {
+      e.preventDefault();
+      if (!currentUser) return;
+      const input = document.getElementById(`comment-input-${postId}`);
+      const text = input.value.trim();
+      const mediaUrl = tempCommentMedia[postId] || '';
+      if (!text && !mediaUrl) return;
+
+      const post = postsList.find(p => p.id === postId);
+      if (!post) return;
+      const newComment = {
+        id: 'c_' + Date.now(),
+        text,
+        mediaUrl,
+        authorId: currentUser.id,
+        authorName: currentUser.rpName,
+        createdAt: Date.now()
+      };
+      const updated = [...(post.comments || []), newComment];
+      delete tempCommentMedia[postId];
+
+      try {
+        if (useMockFallback) {
+          post.comments = updated;
+          saveLocalFallbackState();
+          renderForumPosts();
+        } else {
+          await updateDoc(docRef('lostmc_posts', postId), { comments: updated });
+        }
+      } catch {
+        showToast('Yorum gönderilemedi.', 'error');
+      }
+    };
+
+    window.openEditPostModal = function(postId) {
+      const post = postsList.find(p => p.id === postId);
+      if (!post || !currentUser) return;
+      if (!canModerateContent(currentUser, post.authorId)) {
+        return showToast('Bu konuyu düzenleme yetkiniz yok.', 'error');
+      }
+      document.getElementById('edit-post-id').value = post.id;
+      document.getElementById('edit-post-title').value = post.title || '';
+      document.getElementById('edit-post-category').value = post.category || 'Genel';
+      document.getElementById('edit-post-content').value = post.content || '';
+      document.getElementById('edit-post-modal').classList.remove('hidden');
+    };
+
+    window.handleUpdatePost = async function(e) {
+      e.preventDefault();
+      if (!currentUser) return;
+      const postId = document.getElementById('edit-post-id').value;
+      const post = postsList.find(p => p.id === postId);
+      if (!post) return;
+      if (!canModerateContent(currentUser, post.authorId)) {
+        return showToast('Yetkiniz yok.', 'error');
+      }
+      const title = document.getElementById('edit-post-title').value.trim();
+      const category = document.getElementById('edit-post-category').value;
+      const content = document.getElementById('edit-post-content').value.trim();
+      if (!title || !content) return;
+
+      try {
+        if (useMockFallback) {
+          post.title = title;
+          post.category = category;
+          post.content = content;
+          saveLocalFallbackState();
+          renderForumPosts();
+        } else {
+          await updateDoc(docRef('lostmc_posts', postId), { title, category, content });
+        }
+        closeModal('edit-post-modal');
+        showToast('Konu güncellendi.', 'success');
+      } catch {
+        showToast('Konu güncellenemedi.', 'error');
+      }
+    };
+
+    window.deleteComment = async function(postId, commentId) {
+      if (!currentUser) return;
+      const post = postsList.find(p => p.id === postId);
+      if (!post) return;
+      const cm = (post.comments || []).find(c => c.id === commentId);
+      if (!cm || !canModerateContent(currentUser, cm.authorId)) {
+        return showToast('Bu yorumu silme yetkiniz yok.', 'error');
+      }
+      const updated = (post.comments || []).filter(c => c.id !== commentId);
+      try {
+        if (useMockFallback) {
+          post.comments = updated;
+          saveLocalFallbackState();
+          renderForumPosts();
+        } else {
+          await updateDoc(docRef('lostmc_posts', postId), { comments: updated });
+        }
+        showToast('Yorum silindi.', 'info');
+      } catch {
+        showToast('Yorum silinemedi.', 'error');
+      }
+    };
+
+    window.deletePost = async function(postId) {
+      const post = postsList.find(p => p.id === postId);
+      if (!post || !currentUser) return;
+      if (!canModerateContent(currentUser, post.authorId)) {
+        return showToast('Bu konuyu silme yetkiniz yok.', 'error');
+      }
+      try {
+        if (useMockFallback) {
+          postsList = postsList.filter(p => p.id !== postId);
+          saveLocalFallbackState();
+          renderForumPosts();
+        } else {
+          await deleteDoc(docRef('lostmc_posts', postId));
+        }
+        showToast('Konu silindi.', 'info');
+      } catch {
+        showToast('Konu silinemedi.', 'error');
+      }
+    };
+
+    // ==================== MEDYA / GALERİ YÖNETİMİ ====================
+    window.openGalleryModal = function() {
+      if (!currentUser) {
+        showToast('Fotoğraf eklemek için giriş yapın.', 'warning');
+        return openAuthModal('login');
+      }
+      tempGalleryData = '';
+      document.getElementById('gallery-url').value = '';
+      document.getElementById('gallery-caption').value = '';
+      document.getElementById('gallery-preview-box').classList.add('hidden');
+      document.getElementById('gallery-modal').classList.remove('hidden');
+    };
+
+    window.handleGalleryFileSelect = async function(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      try {
+        tempGalleryData = await processImageFile(file, 900);
+        document.getElementById('gallery-preview-img').src = tempGalleryData;
+        document.getElementById('gallery-preview-box').classList.remove('hidden');
+      } catch (err) {
+        showToast(String(err), 'error');
+      }
+    };
+
+    window.handleAddGalleryItem = async function(e) {
+      e.preventDefault();
+      if (!currentUser) return;
+      const urlInput = document.getElementById('gallery-url').value.trim();
+      const caption = document.getElementById('gallery-caption').value.trim();
+      const mediaUrl = tempGalleryData || urlInput;
+      if (!mediaUrl) return showToast('Fotoğraf veya GIF seçin.', 'warning');
+
+      const itemObj = {
+        mediaUrl,
+        caption,
+        authorId: currentUser.id,
+        createdAt: Date.now()
+      };
+
+      try {
+        if (useMockFallback) {
+          galleryList.unshift({ id: 'g_' + Date.now(), ...itemObj });
+          saveLocalFallbackState();
+          renderGallery();
+        } else {
+          await addDoc(colRef('lostmc_gallery'), itemObj);
+        }
+        tempGalleryData = '';
+        closeModal('gallery-modal');
+        showToast('Galeriye eklendi.', 'success');
+      } catch {
+        showToast('Eklenemedi.', 'error');
+      }
+    };
+
+    window.deleteGalleryItem = async function(id) {
+      const item = galleryList.find(g => g.id === id);
+      if (!item || !currentUser) return;
+      if (!canModerateContent(currentUser, item.authorId)) {
+        return showToast('Silme yetkiniz yok.', 'error');
+      }
+      try {
+        if (useMockFallback) {
+          galleryList = galleryList.filter(g => g.id !== id);
+          saveLocalFallbackState();
+          renderGallery();
+        } else {
+          await deleteDoc(docRef('lostmc_gallery', id));
+        }
+        showToast('Silindi.', 'info');
+      } catch {
+        showToast('Silinemedi.', 'error');
+      }
+    };
+
+    window.openEditGalleryModal = function(id) {
+      const item = galleryList.find(g => g.id === id);
+      if (!item || !currentUser) return;
+      if (!canModerateContent(currentUser, item.authorId)) {
+        return showToast('Düzenleme yetkiniz yok.', 'error');
+      }
+      document.getElementById('edit-gallery-id').value = item.id;
+      document.getElementById('edit-gallery-url').value = item.mediaUrl || '';
+      document.getElementById('edit-gallery-caption').value = item.caption || '';
+      document.getElementById('edit-gallery-modal').classList.remove('hidden');
+    };
+
+    window.handleUpdateGalleryItem = async function(e) {
+      e.preventDefault();
+      if (!currentUser) return;
+      const id = document.getElementById('edit-gallery-id').value;
+      const item = galleryList.find(g => g.id === id);
+      if (!item) return;
+      if (!canModerateContent(currentUser, item.authorId)) {
+        return showToast('Yetkiniz yok.', 'error');
+      }
+      const mediaUrl = document.getElementById('edit-gallery-url').value.trim();
+      const caption = document.getElementById('edit-gallery-caption').value.trim();
+      if (!mediaUrl) return;
+
+      try {
+        if (useMockFallback) {
+          item.mediaUrl = mediaUrl;
+          item.caption = caption;
+          saveLocalFallbackState();
+          renderGallery();
+        } else {
+          await updateDoc(docRef('lostmc_gallery', id), { mediaUrl, caption });
+        }
+        closeModal('edit-gallery-modal');
+        showToast('Galeri öğesi güncellendi.', 'success');
+      } catch {
+        showToast('Güncellenemedi.', 'error');
+      }
+    };
+
+    window.renderGallery = function() {
+      const container = document.getElementById('gallery-container');
+      if (galleryList.length === 0) {
+        container.innerHTML = `<div class="col-span-full mc-card rounded-md p-8 text-center text-zinc-500 text-sm">Henüz fotoğraf veya GIF eklenmedi.</div>`;
+        return;
+      }
+      const rotations = ['-1.2deg', '1deg', '-0.7deg', '1.3deg', '-0.9deg', '0.6deg'];
+      container.innerHTML = galleryList.map((item, idx) => {
+        const canManage = canModerateContent(currentUser, item.authorId);
+        return `
+          <div class="flex justify-center p-2">
+            <div class="polaroid-frame w-full rounded-xs" style="transform: rotate(${rotations[idx % rotations.length]})">
+              <div class="tape-strip"></div>
+              <div class="aspect-[4/3] w-full bg-zinc-950 overflow-hidden border border-zinc-400">
+                <img src="${escapeHtml(item.mediaUrl)}" onclick="openLightbox('${escapeHtml(item.mediaUrl)}')" class="w-full h-full object-cover cursor-zoom-in" loading="lazy" />
+              </div>
+              <div class="pt-2.5 flex items-center justify-between gap-2 text-zinc-900">
+                <div class="min-w-0">
+                  ${item.caption ? `<div class="font-typewriter text-xs font-bold text-zinc-900 truncate">${escapeHtml(item.caption)}</div>` : ''}
+                </div>
+                ${canManage ? `
+                  <div class="flex items-center gap-2 shrink-0">
+                    <button onclick="openEditGalleryModal('${item.id}')" class="text-zinc-700 hover:text-amber-700 text-xs" title="Düzenle"><i class="fa-solid fa-pen-to-square"></i></button>
+                    <button onclick="deleteGalleryItem('${item.id}')" class="text-red-800 hover:text-red-600 text-xs" title="Sil"><i class="fa-solid fa-trash"></i></button>
+                  </div>
+                ` : ''}
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    };
+
+    // ==================== ÜYELER & RÜTBE YÖNETİMİ ====================
+    window.setMembersView = function(mode) {
+      membersViewMode = mode;
+      document.getElementById('btn-view-cards').className = mode === 'cards'
+        ? 'px-3 py-1.5 rounded bg-red-700 text-white text-xs font-semibold transition'
+        : 'px-3 py-1.5 rounded bg-carddark border border-steel text-zinc-300 hover:text-white text-xs font-semibold transition';
+      document.getElementById('btn-view-polaroid').className = mode === 'polaroid'
+        ? 'px-3 py-1.5 rounded bg-red-700 text-white text-xs font-semibold transition'
+        : 'px-3 py-1.5 rounded bg-carddark border border-steel text-zinc-300 hover:text-white text-xs font-semibold transition';
+      renderMembers();
+    };
+
+    window.renderMembers = function() {
+      const container = document.getElementById('members-container');
+      const isPresident = isPresidentUser(currentUser);
+      const isManager = isManagerUser(currentUser);
+
+      if (usersList.length === 0) {
+        container.innerHTML = `<div class="col-span-full mc-card rounded-md p-8 text-center text-zinc-500 text-sm">Kayıtlı üye yok.</div>`;
+        return;
+      }
+
+      if (membersViewMode === 'polaroid') {
+        const polaroidMembers = usersList.filter(u => u.showOnPolaroid === true);
+        if (polaroidMembers.length === 0) {
+          container.innerHTML = `
+            <div class="col-span-full mc-card rounded-md p-8 text-center text-zinc-400 text-sm space-y-2">
+              <i class="fa-solid fa-camera-retro text-2xl text-red-700"></i>
+              <div>Polaroid duvarına henüz üye seçilmedi.</div>
+              ${isPresident ? `<div class="text-xs text-amber-400">Kart görünümünden Polaroid duvarında görünecek üyeleri ve fotoğraflarını seçebilirsiniz.</div>` : ''}
+            </div>
+          `;
+          return;
+        }
+        const rotations = ['-1.4deg', '1.1deg', '-0.8deg', '1.3deg', '-1deg', '0.7deg'];
+        container.innerHTML = polaroidMembers.map((u, idx) => {
+          const rInfo = getRankInfo(u.rank);
+          const photo = u.polaroidImage || 'https://placehold.co/600x600/1c1c22/6b7280?text=FOTO+BEKLENIYOR';
+          const canEditRank = canManageMemberRank(currentUser, u);
+          return `
+            <div class="flex justify-center p-3">
+              <div class="polaroid-frame w-full max-w-[300px] rounded-xs" style="transform: rotate(${rotations[idx % rotations.length]})">
+                <div class="tape-strip"></div>
+                <div class="aspect-square w-full bg-zinc-900 overflow-hidden border border-zinc-400 relative">
+                  <img src="${escapeHtml(photo)}" onclick="openLightbox('${escapeHtml(photo)}')" class="w-full h-full object-cover cursor-zoom-in" />
+                  ${isPresident ? `
+                    <button onclick="openPolaroidModal('${u.id}')" class="absolute top-2 right-2 w-7 h-7 rounded bg-black/75 hover:bg-red-700 text-white text-xs flex items-center justify-center transition" title="Polaroid Ayarla">
+                      <i class="fa-solid fa-pen"></i>
+                    </button>
+                  ` : ''}
+                </div>
+                <div class="pt-3 text-zinc-900">
+                  <div class="font-typewriter font-bold text-base text-zinc-950">${escapeHtml(u.rpName)}</div>
+                  <div class="font-typewriter text-xs text-red-900 font-bold uppercase mt-0.5">${escapeHtml(rInfo.name)}</div>
+                  ${u.polaroidNote ? `<p class="font-typewriter text-[11px] text-emerald-950 mt-1.5 leading-snug">${escapeHtml(u.polaroidNote)}</p>` : ''}
+                  ${canEditRank ? renderRankControls(u, true) : ''}
+                </div>
+              </div>
+            </div>
+          `;
+        }).join('');
+        return;
+      }
+
+      container.innerHTML = usersList.map(u => {
+        const rInfo = getRankInfo(u.rank);
+        const isSelf = currentUser && currentUser.id === u.id;
+        const canEditRank = canManageMemberRank(currentUser, u);
+        return `
+          <div class="mc-card rounded-md p-4 flex flex-col justify-between gap-3 ${Number(u.rank) === PRESIDENT_RANK ? 'border-amber-600/60' : ''}">
+            <div class="flex items-start gap-3.5">
+              <img src="${escapeHtml(getAvatarUrl(u.avatar, u.rpName))}" class="w-14 h-14 rounded object-cover border ${Number(u.rank) === PRESIDENT_RANK ? 'border-amber-500' : 'border-zinc-700'} shrink-0" />
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center justify-between gap-2">
+                  <h3 class="font-heading text-lg font-bold text-white tracking-wide truncate">${escapeHtml(u.rpName)}</h3>
+                  ${u.showOnPolaroid ? `<span class="text-[10px] px-1.5 py-0.5 rounded bg-amber-950/70 border border-amber-700/60 text-amber-300 shrink-0" title="Polaroid Duvarında"><i class="fa-solid fa-camera-retro"></i></span>` : ''}
+                </div>
+                <span class="mt-1 text-[10px] font-bold px-2 py-0.5 rounded border inline-flex items-center gap-1.5 ${rInfo.badge}">
+                  <i class="fa-solid ${rInfo.icon}"></i> ${escapeHtml(rInfo.name)}
+                </span>
+                <div class="mt-1.5 text-[11px] text-zinc-500 truncate">
+                  ${isManager || isSelf ? escapeHtml(u.email) : maskEmail(u.email)}
+                </div>
+              </div>
+            </div>
+            ${(canEditRank || isPresident) ? `
+              <div class="pt-3 border-t border-steel/80 space-y-2">
+                ${canEditRank ? renderRankControls(u, false) : ''}
+                ${isPresident ? `
+                  <button onclick="openPolaroidModal('${u.id}')" class="w-full py-1.5 px-2.5 rounded text-[11px] font-semibold border transition flex items-center justify-center gap-1.5 ${u.showOnPolaroid ? 'bg-amber-950/60 hover:bg-amber-900/60 border-amber-700/60 text-amber-300' : 'bg-[#0e0e13] hover:bg-zinc-800 border-steel text-zinc-300'}">
+                    <i class="fa-solid fa-camera-retro"></i> ${u.showOnPolaroid ? 'Polaroid Düzenle / Kaldır' : 'Polaroid Duvarına Ekle'}
+                  </button>
+                ` : ''}
+              </div>
+            ` : ''}
+          </div>
+        `;
+      }).join('');
+    };
+
+    function renderRankControls(member, lightBg = false) {
+      const maxAssignable = getMaxAssignableRank(currentUser);
+      const isOnlyPresident = Number(member.rank) === PRESIDENT_RANK && usersList.filter(x => Number(x.rank) === PRESIDENT_RANK).length <= 1;
+      const availableRanks = RANKS.filter(r => r.level <= maxAssignable || r.level === Number(member.rank));
+      const idxInAvail = availableRanks.findIndex(r => r.level === Number(member.rank));
+      const canPromote = idxInAvail >= 0 && idxInAvail < availableRanks.length - 1 && availableRanks[idxInAvail + 1].level <= maxAssignable;
+      const canDemote = idxInAvail > 0 && !isOnlyPresident;
+
+      return `
+        <div class="flex items-center justify-between gap-2 ${lightBg ? 'mt-2 pt-2 border-t border-zinc-300' : ''}">
+          <select onchange="changeUserRank('${member.id}', this.value)" ${isOnlyPresident ? 'disabled' : ''} class="flex-1 px-2 py-1.5 rounded text-xs font-semibold ${lightBg ? 'bg-zinc-200 text-zinc-900 border border-zinc-400' : 'bg-[#0e0e13] text-zinc-200 border border-steel'} focus:outline-none focus:border-red-700">
+            ${availableRanks.slice().reverse().map(r => `
+              <option value="${r.level}" ${Number(member.rank) === r.level ? 'selected' : ''}>${escapeHtml(r.name)}</option>
+            `).join('')}
+          </select>
+          <div class="flex items-center gap-1 shrink-0">
+            <button onclick="stepUserRank('${member.id}', 1)" ${!canPromote ? 'disabled' : ''} class="px-2 py-1.5 rounded bg-emerald-800 hover:bg-emerald-700 disabled:opacity-30 text-white text-xs" title="Yükselt">
+              <i class="fa-solid fa-arrow-up"></i>
+            </button>
+            <button onclick="stepUserRank('${member.id}', -1)" ${!canDemote ? 'disabled' : ''} class="px-2 py-1.5 rounded bg-red-800 hover:bg-red-700 disabled:opacity-30 text-white text-xs" title="Düşür">
+              <i class="fa-solid fa-arrow-down"></i>
+            </button>
+          </div>
+        </div>
+      `;
+    }
+
+    window.changeUserRank = async function(targetUserId, newRankVal) {
+      if (!currentUser || !isManagerUser(currentUser)) {
+        return showToast('Rütbe değiştirme yetkiniz yok.', 'error');
+      }
+      const newRank = Number(newRankVal);
+      const target = usersList.find(u => u.id === targetUserId);
+      if (!target) return;
+
+      if (!canManageMemberRank(currentUser, target)) {
+        showToast('Kendi rütbenizdeki veya üstünüzdeki üyelere dokunamazsınız.', 'error');
+        return renderMembers();
+      }
+
+      const maxAssignable = getMaxAssignableRank(currentUser);
+      if (newRank > maxAssignable) {
+        showToast('Kendi rütbenize veya üstüne terfi ettiremezsiniz.', 'error');
+        return renderMembers();
+      }
+
+      const presidentCount = usersList.filter(u => Number(u.rank) === PRESIDENT_RANK).length;
+      if (Number(target.rank) === PRESIDENT_RANK && newRank < PRESIDENT_RANK && presidentCount <= 1) {
+        showToast('En az 1 President bulunmalıdır.', 'warning');
+        return renderMembers();
+      }
+
+      try {
+        if (useMockFallback) {
+          target.rank = newRank;
+          sortUsersList();
+          saveLocalFallbackState();
+          renderMembers();
+        } else {
+          await updateDoc(docRef('lostmc_users', targetUserId), { rank: newRank });
+        }
+        showToast(`${target.rpName} → ${getRankInfo(newRank).name}`, 'success');
+      } catch {
+        showToast('Rütbe güncellenemedi.', 'error');
+      }
+    };
+
+    window.stepUserRank = function(targetUserId, delta) {
+      const target = usersList.find(u => u.id === targetUserId);
+      if (!target || !canManageMemberRank(currentUser, target)) return;
+      const maxAssignable = getMaxAssignableRank(currentUser);
+      const allowed = RANKS.filter(r => r.level <= maxAssignable || r.level === Number(target.rank));
+      const curIdx = allowed.findIndex(r => r.level === Number(target.rank));
+      const nextIdx = curIdx + delta;
+      if (nextIdx >= 0 && nextIdx < allowed.length) {
+        changeUserRank(targetUserId, allowed[nextIdx].level);
+      }
+    };
+
+    // ==================== POLAROID DUVARI YÖNETİMİ (SADECE PRESIDENT) ====================
+    window.openPolaroidModal = function(userId) {
+      if (!isPresidentUser(currentUser)) {
+        return showToast('Polaroid duvarını sadece President yönetebilir.', 'error');
+      }
+      const target = usersList.find(u => u.id === userId);
+      if (!target) return;
+      tempPolaroidData = '';
+      document.getElementById('polaroid-user-id').value = target.id;
+      document.getElementById('polaroid-target-name').textContent = `${target.rpName} (${getRankInfo(target.rank).name})`;
+      document.getElementById('polaroid-enabled').checked = Boolean(target.showOnPolaroid);
+      document.getElementById('polaroid-img-url').value = (target.polaroidImage && target.polaroidImage.startsWith('http')) ? target.polaroidImage : '';
+      document.getElementById('polaroid-note').value = target.polaroidNote || '';
+      const previewBox = document.getElementById('polaroid-preview-box');
+      if (target.polaroidImage) {
+        document.getElementById('polaroid-preview-img').src = target.polaroidImage;
+        previewBox.classList.remove('hidden');
+      } else {
+        previewBox.classList.add('hidden');
+      }
+      document.getElementById('polaroid-modal').classList.remove('hidden');
+    };
+
+    window.handlePolaroidFileSelect = async function(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      try {
+        tempPolaroidData = await processImageFile(file, 700);
+        document.getElementById('polaroid-preview-img').src = tempPolaroidData;
+        document.getElementById('polaroid-preview-box').classList.remove('hidden');
+        showToast('Polaroid fotoğrafı hazır.', 'success');
+      } catch (err) {
+        showToast(String(err), 'error');
+      }
+    };
+
+    window.handleSavePolaroid = async function(e) {
+      e.preventDefault();
+      if (!isPresidentUser(currentUser)) return;
+      const userId = document.getElementById('polaroid-user-id').value;
+      const target = usersList.find(u => u.id === userId);
+      if (!target) return;
+
+      const showOnPolaroid = document.getElementById('polaroid-enabled').checked;
+      const urlInput = document.getElementById('polaroid-img-url').value.trim();
+      const polaroidNote = document.getElementById('polaroid-note').value.trim();
+      const polaroidImage = tempPolaroidData || urlInput || target.polaroidImage || '';
+
+      try {
+        if (useMockFallback) {
+          target.showOnPolaroid = showOnPolaroid;
+          target.polaroidImage = polaroidImage;
+          target.polaroidNote = polaroidNote;
+          saveLocalFallbackState();
+          renderMembers();
+        } else {
+          await updateDoc(docRef('lostmc_users', userId), { showOnPolaroid, polaroidImage, polaroidNote });
+        }
+        tempPolaroidData = '';
+        closeModal('polaroid-modal');
+        showToast('Polaroid ayarları kaydedildi.', 'success');
+      } catch {
+        showToast('Polaroid kaydedilemedi.', 'error');
+      }
+    };
+
+    // ==================== RÜTBE EKLE / KALDIR (SECRETARY VE ÜSTÜ) ====================
+    window.openRanksModal = function() {
+      if (!isManagerUser(currentUser)) {
+        return showToast('Yetkiniz yok.', 'error');
+      }
+      const levelInput = document.getElementById('new-rank-level');
+      if (levelInput) {
+        levelInput.max = isPresidentUser(currentUser) ? 8.5 : Math.max(0.5, Number(currentUser.rank) - 0.5);
+      }
+      renderRanksManageList();
+      document.getElementById('ranks-modal').classList.remove('hidden');
+    };
+
+    function renderRanksManageList() {
+      const list = document.getElementById('ranks-manage-list');
+      if (!list) return;
+      const myRank = Number(currentUser?.rank || 0);
+      list.innerHTML = RANKS.slice().reverse().map(r => {
+        const canRemove = !r.core && (isPresidentUser(currentUser) || r.level < myRank);
+        return `
+          <div class="flex items-center justify-between gap-2 px-3 py-2 rounded bg-[#101015] border border-steel">
+            <div class="flex items-center gap-2">
+              <span class="text-[10px] font-bold px-2 py-0.5 rounded border ${r.badge}">
+                <i class="fa-solid ${r.icon} mr-1"></i>${escapeHtml(r.name)}
+              </span>
+              <span class="text-[10px] text-zinc-500">Seviye: ${r.level}</span>
+            </div>
+            ${canRemove ? `
+              <button onclick="removeCustomRank(${r.level})" class="text-red-400 hover:text-red-300 text-xs" title="Rütbeyi Kaldır">
+                <i class="fa-solid fa-trash"></i>
+              </button>
+            ` : `<span class="text-[10px] text-zinc-600">${r.core ? 'Ana Rütbe' : 'Kilitli'}</span>`}
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function persistRanks() {
+      RANKS.sort((a, b) => a.level - b.level);
+      if (useMockFallback) {
+        saveLocalFallbackState();
+      } else if (firebaseUser) {
+        await setDoc(docRef('lostmc_settings', 'club_config'), {
+          customRanks: RANKS,
+          updatedBy: currentUser.rpName,
+          updatedAt: Date.now()
+        }, { merge: true });
+      }
+      renderRanksManageList();
+      renderMembers();
+      renderHeaderAuth();
+    }
+
+    window.handleAddCustomRank = async function(e) {
+      e.preventDefault();
+      if (!isManagerUser(currentUser)) return;
+      const name = document.getElementById('new-rank-name').value.trim();
+      const level = Number(document.getElementById('new-rank-level').value);
+      const myRank = Number(currentUser.rank);
+
+      if (!name || Number.isNaN(level)) return;
+      if (!isPresidentUser(currentUser) && level >= myRank) {
+        return showToast('Kendi rütbenizde veya üstünde rütbe ekleyemezsiniz.', 'error');
+      }
+      if (level <= 0 || level >= PRESIDENT_RANK) {
+        return showToast('Seviye 0.5 ile 8.5 arasında olmalıdır.', 'warning');
+      }
+      if (RANKS.some(r => r.level === level)) {
+        return showToast('Bu seviyede zaten bir rütbe var.', 'warning');
+      }
+
+      RANKS.push({
+        level,
+        name,
+        badge: "bg-zinc-800 text-zinc-200 border-zinc-600",
+        icon: "fa-certificate",
+        core: false
+      });
+      await persistRanks();
+      document.getElementById('new-rank-name').value = '';
+      document.getElementById('new-rank-level').value = '';
+      showToast(`"${name}" rütbesi eklendi.`, 'success');
+    };
+
+    window.removeCustomRank = async function(level) {
+      if (!isManagerUser(currentUser)) return;
+      const targetRank = RANKS.find(r => r.level === Number(level));
+      if (!targetRank || targetRank.core) return;
+      if (!isPresidentUser(currentUser) && targetRank.level >= Number(currentUser.rank)) {
+        return showToast('Kendi rütbenizdeki veya üstündeki rütbeyi kaldıramazsınız.', 'error');
+      }
+      RANKS = RANKS.filter(r => r.level !== Number(level));
+      await persistRanks();
+      showToast(`"${targetRank.name}" rütbesi kaldırıldı.`, 'info');
+    };
+
+    // ==================== ŞİKAYET / TİCKET SİSTEMİ ====================
+    function canAccessTicket(ticket, user) {
+      if (!user || !ticket) return false;
+      if (isPresidentUser(user)) return true;
+      const userEmail = (user.email || '').toLowerCase();
+      if ((ticket.creatorEmail || '').toLowerCase() === userEmail) return true;
+      const allowed = (ticket.allowedEmails || []).map(e => String(e).toLowerCase());
+      return allowed.includes(userEmail);
+    }
+
+    window.openNewTicketModal = function() {
+      if (!currentUser) {
+        showToast('Ticket oluşturmak için giriş yapın.', 'warning');
+        return openAuthModal('login');
+      }
+      tempTicketEmails = [];
+      tempTicketMedia = [];
+      document.getElementById('ticket-title').value = '';
+      document.getElementById('ticket-desc').value = '';
+      document.getElementById('ticket-email-input').value = '';
+      document.getElementById('ticket-media-url').value = '';
+      renderTicketEmailTags();
+      renderTicketMediaPreview();
+      document.getElementById('new-ticket-modal').classList.remove('hidden');
+    };
+
+    window.addTicketEmailTag = function() {
+      const input = document.getElementById('ticket-email-input');
+      const parts = input.value.split(/[,;\s]+/).map(s => s.trim().toLowerCase()).filter(Boolean);
+      parts.forEach(em => {
+        if (em.includes('@') && !tempTicketEmails.includes(em)) {
+          tempTicketEmails.push(em);
+        }
+      });
+      input.value = '';
+      renderTicketEmailTags();
+    };
+
+    window.removeTicketEmailTag = function(idx) {
+      tempTicketEmails.splice(idx, 1);
+      renderTicketEmailTags();
+    };
+
+    function renderTicketEmailTags() {
+      const box = document.getElementById('ticket-email-tags');
+      if (!box) return;
+      box.innerHTML = tempTicketEmails.map((em, idx) => `
+        <span class="inline-flex items-center gap-1.5 px-2 py-1 rounded bg-red-950/60 border border-red-800/60 text-[11px] text-red-200">
+          ${escapeHtml(em)}
+          <button type="button" onclick="removeTicketEmailTag(${idx})" class="hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+        </span>
+      `).join('');
+    }
+
+    window.addTicketMediaFromUrl = function() {
+      const input = document.getElementById('ticket-media-url');
+      const url = input.value.trim();
+      if (!url) return;
+      tempTicketMedia.push(url);
+      input.value = '';
+      renderTicketMediaPreview();
+    };
+
+    window.addTicketMediaFromFile = async function(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      try {
+        const dataUrl = await processImageFile(file, 850);
+        tempTicketMedia.push(dataUrl);
+        renderTicketMediaPreview();
+      } catch (err) {
+        showToast(String(err), 'error');
+      }
+      e.target.value = '';
+    };
+
+    window.removeTicketTempMedia = function(idx) {
+      tempTicketMedia.splice(idx, 1);
+      renderTicketMediaPreview();
+    };
+
+    function renderTicketMediaPreview() {
+      const box = document.getElementById('ticket-media-preview');
+      if (!box) return;
+      box.innerHTML = tempTicketMedia.map((url, idx) => `
+        <div class="relative w-20 h-20 rounded overflow-hidden border border-steel">
+          <img src="${escapeHtml(url)}" class="w-full h-full object-cover" />
+          <button type="button" onclick="removeTicketTempMedia(${idx})" class="absolute top-0.5 right-0.5 w-5 h-5 rounded bg-red-800 text-white text-[10px] flex items-center justify-center"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+      `).join('');
+    }
+
+    window.handleCreateTicket = async function(e) {
+      e.preventDefault();
+      if (!currentUser) return;
+      const pendingEmail = document.getElementById('ticket-email-input').value.trim();
+      if (pendingEmail) addTicketEmailTag();
+
+      const title = document.getElementById('ticket-title').value.trim();
+      const category = document.getElementById('ticket-category').value;
+      const description = document.getElementById('ticket-desc').value.trim();
+      if (!title || !description) return;
+
+      const ticketObj = {
+        title,
+        category,
+        description,
+        status: 'Açık',
+        creatorId: currentUser.id,
+        creatorName: currentUser.rpName,
+        creatorEmail: (currentUser.email || '').toLowerCase(),
+        allowedEmails: [...tempTicketEmails],
+        media: [...tempTicketMedia],
+        replies: [],
+        createdAt: Date.now()
+      };
+
+      try {
+        if (useMockFallback) {
+          const created = { id: 't_' + Date.now(), ...ticketObj };
+          ticketsList.unshift(created);
+          selectedTicketId = created.id;
+          saveLocalFallbackState();
+          renderTickets();
+        } else {
+          const ref = await addDoc(colRef('lostmc_tickets'), ticketObj);
+          selectedTicketId = ref.id;
+        }
+        tempTicketEmails = [];
+        tempTicketMedia = [];
+        closeModal('new-ticket-modal');
+        showToast('Ticket oluşturuldu.', 'success');
+      } catch {
+        showToast('Ticket oluşturulamadı.', 'error');
+      }
+    };
+
+    window.selectTicket = function(id) {
+      selectedTicketId = id;
+      tempTicketReplyMedia = '';
+      renderTickets();
+    };
+
+    window.updateTicketStatus = async function(ticketId, newStatus) {
+      const ticket = ticketsList.find(t => t.id === ticketId);
+      if (!ticket || !currentUser || !isManagerUser(currentUser)) return;
+      try {
+        if (useMockFallback) {
+          ticket.status = newStatus;
+          saveLocalFallbackState();
+          renderTickets();
+        } else {
+          await updateDoc(docRef('lostmc_tickets', ticketId), { status: newStatus });
+        }
+        showToast(`Durum: ${newStatus}`, 'info');
+      } catch {
+        showToast('Durum güncellenemedi.', 'error');
+      }
+    };
+
+    window.handleTicketReplyFileSelect = async function(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      try {
+        tempTicketReplyMedia = await processImageFile(file, 800);
+        const badge = document.getElementById('ticket-reply-media-badge');
+        if (badge) badge.classList.remove('hidden');
+        showToast('Yanıt görseli hazır.', 'success');
+      } catch (err) {
+        showToast(String(err), 'error');
+      }
+      e.target.value = '';
+    };
+
+    window.sendTicketReply = async function(e, ticketId) {
+      e.preventDefault();
+      if (!currentUser) return;
+      const ticket = ticketsList.find(t => t.id === ticketId);
+      if (!ticket || !canAccessTicket(ticket, currentUser)) return;
+      const input = document.getElementById('ticket-reply-input');
+      const text = input.value.trim();
+      const mediaUrl = tempTicketReplyMedia;
+      if (!text && !mediaUrl) return;
+
+      const replyObj = {
+        id: 'tr_' + Date.now(),
+        senderName: currentUser.rpName,
+        senderRank: getRankInfo(currentUser.rank).name,
+        text,
+        mediaUrl,
+        createdAt: Date.now()
+      };
+      const updated = [...(ticket.replies || []), replyObj];
+      tempTicketReplyMedia = '';
+
+      try {
+        if (useMockFallback) {
+          ticket.replies = updated;
+          saveLocalFallbackState();
+          renderTickets();
+        } else {
+          await updateDoc(docRef('lostmc_tickets', ticketId), { replies: updated });
+        }
+      } catch {
+        showToast('Yanıt gönderilemedi.', 'error');
+      }
+    };
+
+    window.renderTickets = function() {
+      const area = document.getElementById('tickets-content-area');
+      const badge = document.getElementById('ticket-count-badge');
+
+      if (!currentUser) {
+        if (badge) badge.classList.add('hidden');
+        area.innerHTML = `
+          <div class="mc-card rounded-md p-8 text-center space-y-3">
+            <i class="fa-solid fa-lock text-2xl text-red-700"></i>
+            <p class="text-sm text-zinc-400">Gizli şikayet ve ticket kayıtlarını görmek için giriş yapın.</p>
+            <button onclick="openAuthModal('login')" class="px-4 py-2 rounded bg-red-700 hover:bg-red-600 text-white text-xs font-bold uppercase tracking-wider">Giriş Yap</button>
+          </div>
+        `;
+        return;
+      }
+
+      const visible = ticketsList.filter(t => canAccessTicket(t, currentUser));
+      if (badge) {
+        const openCount = visible.filter(t => t.status === 'Açık' || t.status === 'İnceleniyor').length;
+        badge.textContent = String(openCount);
+        badge.classList.toggle('hidden', openCount === 0);
+      }
+
+      if (visible.length === 0) {
+        area.innerHTML = `<div class="mc-card rounded-md p-8 text-center text-zinc-500 text-sm">Erişiminiz olan ticket bulunmuyor.</div>`;
+        return;
+      }
+
+      if (!selectedTicketId || !visible.some(t => t.id === selectedTicketId)) {
+        selectedTicketId = visible[0].id;
+      }
+      const active = visible.find(t => t.id === selectedTicketId);
+
+      const statusStyle = {
+        'Açık': 'bg-red-950 text-red-300 border-red-800',
+        'İnceleniyor': 'bg-amber-950 text-amber-300 border-amber-800',
+        'Çözüldü': 'bg-emerald-950 text-emerald-300 border-emerald-800',
+        'Kapalı': 'bg-zinc-900 text-zinc-400 border-zinc-700'
+      };
+
+      area.innerHTML = `
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+          <div class="mc-card rounded-md overflow-hidden flex flex-col max-h-[650px]">
+            <div class="mc-card-header px-4 py-2.5 text-xs font-heading tracking-wider uppercase text-zinc-300">
+              Talepler (${visible.length})
+            </div>
+            <div class="divide-y divide-steel/70 overflow-y-auto">
+              ${visible.map(t => `
+                <button onclick="selectTicket('${t.id}')" class="w-full text-left p-3.5 hover:bg-white/5 transition ${t.id === active.id ? 'bg-red-950/25 border-l-2 border-red-600' : ''}">
+                  <div class="flex items-center justify-between gap-2">
+                    <span class="text-xs font-bold text-white truncate">${escapeHtml(t.title)}</span>
+                    <span class="text-[10px] px-1.5 py-0.5 rounded border shrink-0 ${statusStyle[t.status] || statusStyle['Açık']}">${escapeHtml(t.status || 'Açık')}</span>
+                  </div>
+                  <div class="mt-1 flex items-center justify-between text-[10px] text-zinc-500">
+                    <span>${escapeHtml(t.category || 'Genel')}</span>
+                    <span>${formatDate(t.createdAt)}</span>
+                  </div>
+                </button>
+              `).join('')}
+            </div>
+          </div>
+
+          <div class="lg:col-span-2 mc-card rounded-md overflow-hidden flex flex-col max-h-[650px]">
+            <div class="mc-card-header px-5 py-3 flex flex-wrap items-center justify-between gap-2">
+              <div>
+                <h3 class="font-heading text-lg font-bold text-white">${escapeHtml(active.title)}</h3>
+                <div class="text-[11px] text-zinc-400">Açan: <span class="text-zinc-200 font-semibold">${escapeHtml(active.creatorName)}</span> • ${formatDate(active.createdAt)}</div>
+              </div>
+              ${isManagerUser(currentUser) ? `
+                <select onchange="updateTicketStatus('${active.id}', this.value)" class="px-2.5 py-1.5 rounded bg-[#0e0e13] border border-steel text-xs text-zinc-200 focus:outline-none focus:border-red-700">
+                  ${['Açık', 'İnceleniyor', 'Çözüldü', 'Kapalı'].map(s => `<option value="${s}" ${active.status === s ? 'selected' : ''}>${s}</option>`).join('')}
+                </select>
+              ` : `<span class="text-xs px-2.5 py-1 rounded border ${statusStyle[active.status] || statusStyle['Açık']}">${escapeHtml(active.status || 'Açık')}</span>`}
+            </div>
+
+            <div class="flex-1 overflow-y-auto p-5 space-y-4 bg-[#101015]">
+              <div class="bg-[#16161c] border border-steel rounded p-4 space-y-3">
+                <p class="text-sm text-zinc-200 whitespace-pre-wrap leading-relaxed">${escapeHtml(active.description)}</p>
+                ${(active.media && active.media.length) ? `
+                  <div class="flex flex-wrap gap-2 pt-2 border-t border-steel/70">
+                    ${active.media.map(m => `<img src="${escapeHtml(m)}" onclick="openLightbox('${escapeHtml(m)}')" class="max-h-48 rounded border border-steel cursor-zoom-in" />`).join('')}
+                  </div>
+                ` : ''}
+                <div class="pt-2 border-t border-steel/70 text-[11px] text-zinc-500">
+                  Erişim Listesi: <span class="text-zinc-300">${escapeHtml([active.creatorEmail, ...(active.allowedEmails || [])].filter(Boolean).join(', '))}</span>
+                </div>
+              </div>
+
+              <div class="space-y-2.5">
+                ${(active.replies || []).map(r => `
+                  <div class="bg-[#14141a] border border-steel/80 rounded p-3">
+                    <div class="flex items-center justify-between text-[11px] mb-1">
+                      <span class="font-bold text-white">${escapeHtml(r.senderName)} <span class="text-red-400 font-normal">(${escapeHtml(r.senderRank)})</span></span>
+                      <span class="text-zinc-500">${formatDate(r.createdAt)}</span>
+                    </div>
+                    <p class="text-xs text-zinc-200 whitespace-pre-wrap">${escapeHtml(r.text)}</p>
+                    ${r.mediaUrl ? `<img src="${escapeHtml(r.mediaUrl)}" onclick="openLightbox('${escapeHtml(r.mediaUrl)}')" class="mt-2 max-h-48 rounded border border-steel cursor-zoom-in" />` : ''}
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+
+            <form onsubmit="sendTicketReply(event, '${active.id}')" class="p-3.5 bg-[#14141a] border-t border-steel space-y-1.5">
+              <div class="flex gap-2">
+                <input id="ticket-reply-input" type="text" placeholder="Yanıt yaz..." class="flex-1 px-3 py-2 rounded bg-[#0e0e13] border border-steel text-xs text-white focus:outline-none focus:border-red-700" />
+                <label class="px-3 py-2 rounded bg-zinc-800 hover:bg-zinc-700 border border-steel text-xs text-zinc-300 cursor-pointer flex items-center" title="Kanıt Ekle">
+                  <i class="fa-solid fa-image"></i>
+                  <input type="file" accept="image/*,.gif" class="hidden" onchange="handleTicketReplyFileSelect(event)" />
+                </label>
+                <button type="submit" class="px-4 py-2 rounded bg-red-700 hover:bg-red-600 text-white text-xs font-bold">Gönder</button>
+              </div>
+              <div id="ticket-reply-media-badge" class="${tempTicketReplyMedia ? '' : 'hidden'} text-[11px] text-emerald-400">Görsel eklendi</div>
+            </form>
+          </div>
+        </div>
+      `;
+    };
+
+    // ==================== CANLI SOHBET SİSTEMİ ====================
+    window.toggleMiniChat = function(forceState) {
+      const box = document.getElementById('mini-chat-box');
+      miniChatOpen = typeof forceState === 'boolean' ? forceState : !miniChatOpen;
+      box.classList.toggle('hidden', !miniChatOpen);
+      if (miniChatOpen) {
+        unreadMiniChat = 0;
+        updateMiniChatUnreadBadge();
+        scrollChatToBottom('mini-chat-messages');
+      }
+    };
+
+    function updateMiniChatUnreadBadge() {
+      const badge = document.getElementById('mini-chat-unread');
+      if (!badge) return;
+      badge.textContent = String(unreadMiniChat);
+      badge.classList.toggle('hidden', unreadMiniChat <= 0);
+    }
+
+    function scrollChatToBottom(elId) {
+      const el = document.getElementById(elId);
+      if (el) el.scrollTop = el.scrollHeight;
+    }
+
+    window.handleChatFileSelect = async function(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      try {
+        tempChatMedia = await processImageFile(file, 700);
+        showToast('Sohbet görseli hazır, gönderebilirsiniz.', 'success');
+      } catch (err) {
+        showToast(String(err), 'error');
+      }
+      e.target.value = '';
+    };
+
+    window.sendChatMessage = async function(e, inputId) {
+      e.preventDefault();
+      if (!currentUser) return openAuthModal('login');
+      const input = document.getElementById(inputId);
+      const text = input ? input.value.trim() : '';
+      const mediaUrl = tempChatMedia;
+      if (!text && !mediaUrl) return;
+
+      const msgObj = {
+        senderId: currentUser.id,
+        senderName: currentUser.rpName,
+        senderAvatar: currentUser.avatar || '',
+        senderRank: getRankInfo(currentUser.rank).name,
+        text,
+        mediaUrl,
+        createdAt: Date.now()
+      };
+      tempChatMedia = '';
+      if (input) input.value = '';
+
+      try {
+        if (useMockFallback) {
+          chatMessages.push({ id: 'm_' + Date.now(), ...msgObj });
+          saveLocalFallbackState();
+          renderChats();
+        } else {
+          await addDoc(colRef('lostmc_chat'), msgObj);
+        }
+      } catch {
+        showToast('Mesaj gönderilemedi.', 'error');
+      }
+    };
+
+    function renderChats() {
+      const fullMsgs = document.getElementById('full-chat-messages');
+      const miniMsgs = document.getElementById('mini-chat-messages');
+      const fullInput = document.getElementById('full-chat-input-area');
+      const miniInput = document.getElementById('mini-chat-input-area');
+
+      const messagesHtml = chatMessages.length === 0
+        ? `<div class="h-full flex items-center justify-center text-zinc-600 text-xs">Henüz mesaj yok.</div>`
+        : chatMessages.map(m => {
+            const isMine = currentUser && currentUser.id === m.senderId;
+            return `
+              <div class="flex items-start gap-2.5 ${isMine ? 'flex-row-reverse' : ''}">
+                <img src="${escapeHtml(getAvatarUrl(m.senderAvatar, m.senderName))}" class="w-7 h-7 rounded object-cover border border-steel shrink-0" />
+                <div class="max-w-[78%] rounded px-3 py-2 border ${isMine ? 'bg-red-950/40 border-red-900/60' : 'bg-[#16161c] border-steel'}">
+                  <div class="flex items-center gap-2 text-[10px] mb-0.5 ${isMine ? 'justify-end' : ''}">
+                    <span class="font-bold text-white">${escapeHtml(m.senderName)}</span>
+                    <span class="text-red-400">${escapeHtml(m.senderRank || '')}</span>
+                    <span class="text-zinc-500">${formatDate(m.createdAt)}</span>
+                  </div>
+                  ${m.text ? `<p class="text-xs text-zinc-200 break-words whitespace-pre-wrap">${escapeHtml(m.text)}</p>` : ''}
+                  ${m.mediaUrl ? `<img src="${escapeHtml(m.mediaUrl)}" onclick="openLightbox('${escapeHtml(m.mediaUrl)}')" class="mt-1.5 max-h-48 rounded border border-steel cursor-zoom-in" />` : ''}
+                </div>
+              </div>
+            `;
+          }).join('');
+
+      if (fullMsgs) {
+        fullMsgs.innerHTML = messagesHtml;
+        scrollChatToBottom('full-chat-messages');
+      }
+      if (miniMsgs) {
+        miniMsgs.innerHTML = messagesHtml;
+        scrollChatToBottom('mini-chat-messages');
+      }
+
+      const makeInputForm = (inputId) => currentUser ? `
+        <form onsubmit="sendChatMessage(event, '${inputId}')" class="flex items-center gap-2">
+          <input id="${inputId}" type="text" placeholder="Mesaj yaz..." class="flex-1 px-3 py-2 rounded bg-[#0e0e13] border border-steel text-xs text-white focus:outline-none focus:border-red-700" />
+          <label class="px-2.5 py-2 rounded bg-zinc-800 hover:bg-zinc-700 border border-steel text-xs text-zinc-300 cursor-pointer" title="Fotoğraf / GIF">
+            <i class="fa-solid fa-image"></i>
+            <input type="file" accept="image/*,.gif" class="hidden" onchange="handleChatFileSelect(event)" />
+          </label>
+          <button type="submit" class="px-3.5 py-2 rounded bg-red-700 hover:bg-red-600 text-white text-xs font-bold">
+            <i class="fa-solid fa-paper-plane"></i>
+          </button>
+        </form>
+      ` : `
+        <div class="flex items-center justify-between text-xs text-zinc-400">
+          <span>Sohbete katılmak için giriş yapın.</span>
+          <button onclick="openAuthModal('login')" class="px-3 py-1.5 rounded bg-red-700 hover:bg-red-600 text-white font-bold">Giriş Yap</button>
+        </div>
+      `;
+
+      if (fullInput) fullInput.innerHTML = makeInputForm('full-chat-input');
+      if (miniInput) miniInput.innerHTML = makeInputForm('mini-chat-input');
+    }
+
+    // ==================== ARKA PLAN KÜL / KAR PARÇACIKLARI ====================
+    function initAshParticles() {
+      const canvas = document.getElementById('ash-canvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      let w = 0, h = 0;
+      const particles = [];
+
+      function resize() {
+        w = canvas.width = window.innerWidth;
+        h = canvas.height = window.innerHeight;
+      }
+      resize();
+      window.addEventListener('resize', resize);
+
+      for (let i = 0; i < 45; i++) {
+        particles.push({
+          x: Math.random() * w,
+          y: Math.random() * h,
+          r: Math.random() * 1.8 + 0.6,
+          vx: (Math.random() - 0.5) * 0.35,
+          vy: Math.random() * 0.45 + 0.15,
+          a: Math.random() * 0.55 + 0.2
+        });
+      }
+
+      function animate() {
+        ctx.clearRect(0, 0, w, h);
+        for (const p of particles) {
+          p.x += p.vx;
+          p.y += p.vy;
+          if (p.y > h) { p.y = -4; p.x = Math.random() * w; }
+          if (p.x > w) p.x = 0;
+          if (p.x < 0) p.x = w;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(229, 231, 235, ${p.a})`;
+          ctx.fill();
+        }
+        requestAnimationFrame(animate);
+      }
+      animate();
+    }
+
+    // ==================== BAŞLATMA ====================
+    window.addEventListener('DOMContentLoaded', () => {
+      renderLogo();
+      renderHeaderAuth();
+      switchTab('forum');
+      initAshParticles();
+      initNetlifyIdentity();
+      initFirebase();
+    });
+  </script>
+</body>
+</html>
