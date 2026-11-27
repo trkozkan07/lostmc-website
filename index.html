@@ -2760,6 +2760,28 @@
       const mediaUrl = tempChatMedia;
       if (!text && !mediaUrl) return;
 
+      if (text.toLowerCase() === '/clear') {
+        if (input) input.value = '';
+        tempChatMedia = '';
+        if (!isManagerUser(currentUser)) {
+          return showToast('Sohbeti temizleme yetkiniz yok.', 'error');
+        }
+        try {
+          const ids = chatMessages.map(m => m.id);
+          if (useMockFallback) {
+            chatMessages = [];
+            saveLocalFallbackState();
+            renderChats();
+          } else {
+            await Promise.all(ids.map(id => deleteDoc(docRef('lostmc_chat', id))));
+          }
+          showToast('Sohbet temizlendi.', 'success');
+        } catch {
+          showToast('Sohbet temizlenemedi.', 'error');
+        }
+        return;
+      }
+
       const msgObj = {
         senderId: currentUser.id,
         senderName: currentUser.rpName,
