@@ -2598,6 +2598,26 @@
       }
     };
 
+    window.deleteTicket = async function(ticketId) {
+      if (!currentUser || !isManagerUser(currentUser)) {
+        return showToast('Ticket silme yetkiniz yok.', 'error');
+      }
+      if (!confirm('Bu ticket kalıcı olarak silinsin mi?')) return;
+      try {
+        if (useMockFallback) {
+          ticketsList = ticketsList.filter(t => t.id !== ticketId);
+          saveLocalFallbackState();
+          renderTickets();
+        } else {
+          await deleteDoc(docRef('lostmc_tickets', ticketId));
+        }
+        selectedTicketId = null;
+        showToast('Ticket silindi.', 'info');
+      } catch {
+        showToast('Ticket silinemedi.', 'error');
+      }
+    };
+
     window.renderTickets = function() {
       const area = document.getElementById('tickets-content-area');
       const badge = document.getElementById('ticket-count-badge');
@@ -2667,9 +2687,12 @@
                 <div class="text-[11px] text-zinc-400">Açan: <span class="text-zinc-200 font-semibold">${escapeHtml(active.creatorName)}</span> • ${formatDate(active.createdAt)}</div>
               </div>
               ${isManagerUser(currentUser) ? `
+                <div class="flex items-center gap-2">
                 <select onchange="updateTicketStatus('${active.id}', this.value)" class="px-2.5 py-1.5 rounded bg-[#0e0e13] border border-steel text-xs text-zinc-200 focus:outline-none focus:border-red-700">
                   ${['Açık', 'İnceleniyor', 'Çözüldü', 'Kapalı'].map(s => `<option value="${s}" ${active.status === s ? 'selected' : ''}>${s}</option>`).join('')}
                 </select>
+                <button onclick="deleteTicket('${active.id}')" class="px-2.5 py-1.5 rounded bg-red-950 hover:bg-red-800 border border-red-800 text-red-300 text-xs" title="Ticket'ı Sil"><i class="fa-solid fa-trash"></i></button>
+                </div>
               ` : `<span class="text-xs px-2.5 py-1 rounded border ${statusStyle[active.status] || statusStyle['Açık']}">${escapeHtml(active.status || 'Açık')}</span>`}
             </div>
 
